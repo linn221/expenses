@@ -6,18 +6,22 @@ import (
 	"os"
 	"time"
 
+	"github.com/bsm/redislock"
 	"github.com/redis/go-redis/v9"
 )
 
 type RedisService struct {
-	ctx context.Context
-	rdb *redis.Client
+	ctx    context.Context
+	rdb    *redis.Client
+	locker *redislock.Client
 }
 
 func NewRedisService(ctx context.Context, rdb *redis.Client) *RedisService {
+	locker := redislock.New(rdb)
 	return &RedisService{
-		ctx: ctx,
-		rdb: rdb,
+		ctx:    ctx,
+		rdb:    rdb,
+		locker: locker,
 	}
 }
 
@@ -135,4 +139,14 @@ func (rc *RedisService) Exists(key string) (int64, error) {
 
 func (rc *RedisService) Incr(key string) (int64, error) {
 	return rc.rdb.Incr(rc.ctx, key).Result()
+}
+
+func (rc *RedisService) Lock(lock string) (func() error, error) {
+	l, err := rc.locker.Obtain(rc.ctx, lock, Cfg.LockTTL(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return func() error {
+		return l.Release(rc.ctx)
+	}, nil
 }

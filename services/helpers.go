@@ -2,21 +2,20 @@ package services
 
 import (
 	"github.com/linn221/expenses/app"
+	"gorm.io/gorm"
 )
 
 type UpdatableModel[T any] interface {
 	UpdateValues(input T) map[string]any
 }
 
-func startTransaction(c *app.Container, s *app.Session) (rollback func() error, commit func() error) {
+func startTransaction(c *app.Container, s *app.Session) {
 	tx := c.DB.WithContext(s.Ctx).Begin()
 	s.Tx = tx
-	return func() error {
-			return tx.Rollback().Error
-		}, func() error {
-			return tx.Commit().Error
-		}
+}
 
+func transaction(c *app.Container, s *app.Session, f func(tx *gorm.DB) error) error {
+	return c.DB.WithContext(s.Ctx).Transaction(f)
 }
 
 func selectResource[T any](c *app.Container, s *app.Session) (*T, error) {

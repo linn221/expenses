@@ -6,30 +6,30 @@ import (
 	"github.com/linn221/expenses/models"
 )
 
-type ItemController struct {
-	MyController
+type itemController struct {
+	myController
 }
 
-func (c *ItemController) Create() http.HandlerFunc {
+func (c *itemController) Create() http.HandlerFunc {
 	return CreateHandler[models.Item, models.NewItem](c.Container, c.Services.ItemService)
 }
 
-func (c *ItemController) Update() http.HandlerFunc {
+func (c *itemController) Update() http.HandlerFunc {
 	return UpdateHandler[models.Item, models.NewItem](c.Container, c.Services.ItemService)
 }
 
-func (c *ItemController) Delete() http.HandlerFunc {
+func (c *itemController) Delete() http.HandlerFunc {
 	return DeleteHandler(c.Container, c.Services.ItemService)
 }
 
-func (c *ItemController) Get() http.HandlerFunc {
+func (c *itemController) Get() http.HandlerFunc {
 	return GetHandler(c.Services.ItemService)
 }
 
-func (c *ItemController) List() http.HandlerFunc {
+func (c *itemController) List() http.HandlerFunc {
 	return ListWithFilterHandler(c.Services.ItemService)
 }
 
-func (c *ItemController) ToggleIsActive() http.HandlerFunc {
+func (c *itemController) ToggleIsActive() http.HandlerFunc {
 	return ToggleIsActiveHandler(c.Services.ItemService)
 }

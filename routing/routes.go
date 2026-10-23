@@ -22,14 +22,17 @@ func Serve(c *app.Container) {
 	})
 
 	r := NewNormalRouter()
-	r.NewInstance("POST /login", controllers.loginController.Login(), rateLimiter)
-	r.NewInstance("POST /register", controllers.loginController.Register(), rateLimiter)
+	r.NewInstance("POST /login", controllers.LoginController.Login(), rateLimiter)
+	r.NewInstance("POST /register", controllers.LoginController.Register(), rateLimiter)
 	r.Register(mux)
 
 	rest := NewRestRouter(middlewares.Auth())
-	rest.NewResource("/categories", controllers.categoryController)
-	rest.NewResource("/balances", controllers.balanceController)
-	rest.NewResource("/items", controllers.itemController)
+	rest.NewResource("/categories", controllers.CategoryController)
+	rest.NewResource("/balances", controllers.BalanceController)
+	rest.NewResource("/items", controllers.ItemController)
+	rest.NewResource("/incomes", controllers.IncomeController)
+	rest.NewResource("/expenses", controllers.ExpenseController)
+
 	rest.Register(mux)
 
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {

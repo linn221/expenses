@@ -1,9 +1,12 @@
 package config
 
+import "time"
+
 type cfg struct {
 	api_port       string
 	base_directory string
 	dev_mode       bool
+	lockTTL        time.Duration
 }
 
 // singleton
@@ -19,4 +22,8 @@ func (c *cfg) BASE_DIR() string {
 
 func (c *cfg) DEV_MODE() bool {
 	return c.dev_mode
+}
+
+func (c *cfg) LockTTL() time.Duration {
+	return time.Minute * 2
 }

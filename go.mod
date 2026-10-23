@@ -20,6 +20,7 @@ require (
 )
 
 require (
+	github.com/bsm/redislock v0.10.0
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect

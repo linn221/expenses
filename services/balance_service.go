@@ -3,10 +3,23 @@ package services
 import (
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/models"
+	"github.com/shopspring/decimal"
 )
 
 type balanceService struct {
 	*app.Container
+}
+
+func incrementBalance(session *app.Session, balanceId int, amount decimal.Decimal) error {
+
+	if session.Tx == nil {
+		panic("not allowed to increase balance without a transaction")
+	}
+
+	//using an atomic expression
+	raw := `UPDATE balances SET current = current + ? WHERE id = ?`
+	err := session.Tx.Exec(raw, amount, balanceId).Error
+	return err
 }
 
 func (s *balanceService) Create(session *app.Session, model models.Balance) (*models.Balance, error) {

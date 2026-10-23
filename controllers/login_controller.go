@@ -9,11 +9,11 @@ import (
 	"github.com/linn221/expenses/utils"
 )
 
-type LoginController struct {
+type loginController struct {
 	Services *services.Provider
 }
 
-func (c *LoginController) Login() http.HandlerFunc {
+func (c *loginController) Login() http.HandlerFunc {
 	return WithInputParsing(func(w http.ResponseWriter, r *http.Request, input *models.LoginInfo) error {
 
 		var sessionId string
@@ -33,7 +33,7 @@ func (c *LoginController) Login() http.HandlerFunc {
 	})
 }
 
-func (c *LoginController) Register() http.HandlerFunc {
+func (c *loginController) Register() http.HandlerFunc {
 	return WithInputParsing(func(w http.ResponseWriter, r *http.Request, input *models.NewUser) error {
 		result, err := c.Services.LoginService.Register(r.Context(), input)
 		if err != nil {

@@ -6,30 +6,30 @@ import (
 	"github.com/linn221/expenses/models"
 )
 
-type CategoryController struct {
-	MyController
+type categoryController struct {
+	myController
 }
 
-func (c *CategoryController) Create() http.HandlerFunc {
+func (c *categoryController) Create() http.HandlerFunc {
 	return CreateHandler[models.Category, models.NewCategory](c.Container, c.Services.CategoryService)
 }
 
-func (c *CategoryController) Update() http.HandlerFunc {
+func (c *categoryController) Update() http.HandlerFunc {
 	return UpdateHandler[models.Category, models.NewCategory](c.Container, c.Services.CategoryService)
 }
 
-func (c *CategoryController) Delete() http.HandlerFunc {
+func (c *categoryController) Delete() http.HandlerFunc {
 	return DeleteHandler[models.Category](c.Container, c.Services.CategoryService)
 }
 
-func (c *CategoryController) Get() http.HandlerFunc {
+func (c *categoryController) Get() http.HandlerFunc {
 	return GetHandler[models.Category](c.Services.CategoryService)
 }
 
-func (c *CategoryController) List() http.HandlerFunc {
+func (c *categoryController) List() http.HandlerFunc {
 	return ListWithFilterHandler[models.Category, models.CategoryFilter](c.Services.CategoryService)
 }
 
-func (c *CategoryController) ToggleIsActive() http.HandlerFunc {
+func (c *categoryController) ToggleIsActive() http.HandlerFunc {
 	return ToggleIsActiveHandler(c.Services.CategoryService)
 }

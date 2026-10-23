@@ -10,6 +10,8 @@ type Provider struct {
 	SessionIdService *sessionIdService
 	BalanceService   *balanceService
 	ItemService      *itemService
+	IncomeService    *incomeService
+	ExpenseService   *expenseService
 }
 
 // for accessing of app container without the dependency injection
@@ -23,5 +25,7 @@ func New(c *app.Container) *Provider {
 		SessionIdService: &sessionIdService{Container: c},
 		BalanceService:   &balanceService{Container: c},
 		ItemService:      &itemService{Container: c},
+		IncomeService:    &incomeService{Container: c},
+		ExpenseService:   &expenseService{Container: c},
 	}
 }

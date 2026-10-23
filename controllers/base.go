@@ -6,7 +6,7 @@ import (
 	"github.com/linn221/expenses/validate"
 )
 
-type MyController struct {
+type myController struct {
 	*app.Container
 	Services *services.Provider
 }

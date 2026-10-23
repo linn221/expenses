@@ -11,7 +11,8 @@ import (
 
 // AI generated one for quick demo purpose
 type inMemoryCache struct {
-	mu   sync.Mutex
+	MemLocker
+	sync.Map
 	data map[string]any
 	sets map[string]map[string]struct{}
 	hash map[string]map[string]any
@@ -19,9 +20,10 @@ type inMemoryCache struct {
 
 func NewInMemoryCache() *inMemoryCache {
 	return &inMemoryCache{
-		data: make(map[string]any),
-		sets: make(map[string]map[string]struct{}),
-		hash: make(map[string]map[string]any),
+		MemLocker: NewMemLocker(),
+		data:      make(map[string]any),
+		sets:      make(map[string]map[string]struct{}),
+		hash:      make(map[string]map[string]any),
 	}
 }
 func (c *inMemoryCache) GetObject(key string, dest any) (bool, error) {
@@ -209,4 +211,45 @@ func (c *inMemoryCache) Incr(key string) (int64, error) {
 	n++
 	c.data[key] = strconv.FormatInt(n, 10)
 	return n, nil
+}
+
+type MemLocker struct {
+	mu    sync.Mutex
+	locks map[string]chan struct{}
+}
+
+func NewMemLocker() MemLocker {
+	return MemLocker{
+		locks: make(map[string]chan struct{}),
+	}
+}
+
+func (l *MemLocker) Lock(key string) (func() error, error) {
+	l.mu.Lock()
+
+	ch, ok := l.locks[key]
+	if !ok {
+		ch = make(chan struct{}, 1)
+		l.locks[key] = ch
+	}
+
+	l.mu.Unlock()
+
+	ch <- struct{}{}
+
+	var once sync.Once
+	return func() error {
+		unlocked := false
+
+		once.Do(func() {
+			<-ch
+			unlocked = true
+		})
+
+		if !unlocked {
+			return errors.New("lock already released")
+		}
+
+		return nil
+	}, nil
 }
