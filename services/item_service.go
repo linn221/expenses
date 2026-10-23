@@ -24,3 +24,23 @@ func (s *itemService) Get(session *app.Session) (*models.Item, error) {
 func (s *itemService) Delete(session *app.Session, record *models.Item) (*models.Item, error) {
 	return deleteModel(s.Container, session, record)
 }
+
+func (s *itemService) List(session *app.Session, filter *models.ItemFilter) ([]models.Item, error) {
+	db := s.Container.DB.WithContext(session.Ctx).Model(&models.Item{}).Preload("Category").Where("user_id = ?", session.UserId)
+
+	if filter != nil {
+		if filter.CategoryId > 0 {
+			db.Where("category_id = ?", filter.CategoryId)
+		}
+		if filter.Search != "" {
+			db.Where("name LIKE ? OR code LIKE ?",
+				"%"+filter.Search+"%",
+				"%"+filter.Search+"%",
+			)
+		}
+	}
+
+	var results []models.Item
+	err := db.Find(&results).Error
+	return results, err
+}

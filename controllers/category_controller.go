@@ -27,9 +27,9 @@ func (c *CategoryController) Get() http.HandlerFunc {
 }
 
 func (c *CategoryController) List() http.HandlerFunc {
-	return ListWithFilterHandler[models.Category, models.CategoryFilter](c.Services.CategoryService, models.ParseCategoryFilter)
+	return ListWithFilterHandler[models.Category, models.CategoryFilter](c.Services.CategoryService)
 }
 
-func (c *CategoryController) ToggleActive() http.HandlerFunc {
+func (c *CategoryController) ToggleIsActive() http.HandlerFunc {
 	return ToggleIsActiveHandler(c.Services.CategoryService)
 }

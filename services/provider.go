@@ -16,7 +16,7 @@ type Provider struct {
 var Default *defaultService
 
 func New(c *app.Container) *Provider {
-	Default = &defaultService{Container: c}
+	Default = &defaultService{container: c}
 	return &Provider{
 		CategoryService:  &categoryService{Container: c},
 		LoginService:     &loginService{Container: c},

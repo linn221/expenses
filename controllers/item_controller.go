@@ -25,3 +25,11 @@ func (c *ItemController) Delete() http.HandlerFunc {
 func (c *ItemController) Get() http.HandlerFunc {
 	return GetHandler(c.Services.ItemService)
 }
+
+func (c *ItemController) List() http.HandlerFunc {
+	return ListWithFilterHandler(c.Services.ItemService)
+}
+
+func (c *ItemController) ToggleIsActive() http.HandlerFunc {
+	return ToggleIsActiveHandler(c.Services.ItemService)
+}

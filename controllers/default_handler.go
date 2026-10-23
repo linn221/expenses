@@ -22,9 +22,6 @@ type Getter[T any] interface {
 type Lister[T, F any] interface {
 	List(*app.Session, F) ([]T, error)
 }
-type QueryFilter interface {
-	Parse(*http.Request)
-}
 type Creater[T any] interface {
 	Create(*app.Session, T) (*T, error)
 }
@@ -35,6 +32,10 @@ type Updater[T any] interface {
 type Deleter[T any] interface {
 	Getter[T]
 	Delete(*app.Session, *T) (*T, error)
+}
+
+type QueryParser[T any] interface {
+	Parse(*http.Request) (*T, error)
 }
 
 func CreateHandler[T any, I models.NewModel[T]](c *app.Container, service Creater[T]) http.HandlerFunc {
@@ -290,7 +291,7 @@ func GetHandler[T any](service Getter[T]) http.HandlerFunc {
 	}
 }
 
-func ListWithFilterHandler[T any, F any](service Lister[T, F], parseQueryFilter func(*http.Request) F) http.HandlerFunc {
+func ListWithFilterHandler[T any, F QueryParser[F]](service Lister[T, *F]) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// Construct user session
@@ -304,8 +305,14 @@ func ListWithFilterHandler[T any, F any](service Lister[T, F], parseQueryFilter 
 			Ctx:    r.Context(),
 		}
 
-		queryFilter := parseQueryFilter(r)
-		results, err := service.List(&session, queryFilter)
+		var filterZero F
+		filter, err := filterZero.Parse(r)
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+
+		results, err := service.List(&session, filter)
 		if err != nil {
 			writeError(w, err)
 			return
@@ -327,12 +334,14 @@ func ListAllHandler[T any](w http.ResponseWriter, r *http.Request) {
 		Ctx:    r.Context(),
 	}
 
-	results, err := services.ListAllResource[T](services.Default.Container, &session)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-	utils.Must(json.NewEncoder(w).Encode(results))
+	services.Default.AccessContainer(func(c *app.Container) {
+		results, err := services.ListAllResource[T](c, &session)
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		utils.Must(json.NewEncoder(w).Encode(results))
+	})
 }
 
 func ToggleIsActiveHandler[T services.Togglable](getService Getter[T]) http.HandlerFunc {
@@ -379,11 +388,13 @@ func ToggleIsActiveHandler[T services.Togglable](getService Getter[T]) http.Hand
 
 		// run the validations only when we are sure the request will modify the model's is active status
 		// validation if valiationRules exist on the resource model
-		err = validateIfRulesExist(services.Default.Container, &session, *model, validate.ActionActiveStatusChange)
-		if err != nil {
-			writeError(w, err)
-			return
-		}
+		services.Default.AccessContainer(func(c *app.Container) {
+			err = validateIfRulesExist(c, &session, *model, validate.ActionActiveStatusChange)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+		})
 
 		err = services.ToggleModel(&session, *model, isActive)
 		if err != nil {

@@ -90,6 +90,6 @@ func (res *ResourceRoute) applyRoutes(mux *http.ServeMux, middleware Middleware)
 	}
 
 	if activeToggleController, ok := res.controller.(IsActiveToggleController); ok {
-		registerRoute("POST /is-active"+res.pattern, activeToggleController.ToggleIsActive())
+		registerRoute("POST /is-active"+res.pattern+"/{id}", activeToggleController.ToggleIsActive())
 	}
 }

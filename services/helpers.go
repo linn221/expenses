@@ -24,6 +24,7 @@ func selectResource[T any](c *app.Container, s *app.Session) (*T, error) {
 	err := c.DB.WithContext(s.Ctx).Where("user_id = ?", s.UserId).First(&v, s.ResId).Error
 	return &v, err
 }
+
 func listResource[T any](c *app.Container, s *app.Session) ([]T, error) {
 	var v []T
 	err := c.DB.WithContext(s.Ctx).Where("user_id = ?", s.UserId).Find(&v).Error

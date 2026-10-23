@@ -28,8 +28,18 @@ func (s *categoryService) Get(session *app.Session) (*models.Category, error) {
 	return selectResource[models.Category](s.Container, session)
 }
 
-func (s *categoryService) List(session *app.Session, filter models.CategoryFilter) ([]models.Category, error) {
-	return listResource[models.Category](s.Container, session)
+func (s *categoryService) List(session *app.Session, filter *models.CategoryFilter) ([]models.Category, error) {
+	db := s.Container.DB.WithContext(session.Ctx).Model(&models.Category{}).Where("user_id = ?", session.UserId)
+	if filter.Name != "" {
+		db.Where("name LIKE ?", "%"+filter.Name+"%")
+	}
+	if filter.IsActive != nil {
+		db.Where("is_active = ?", filter.IsActive)
+	}
+
+	var results []models.Category
+	err := db.Find(&results).Error
+	return results, err
 }
 
 // optional

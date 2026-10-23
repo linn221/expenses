@@ -21,17 +21,18 @@ type NewCategory struct {
 
 type CategoryFilter struct {
 	Name     string
-	IsActive bool
+	IsActive *bool
 }
 
-func ParseCategoryFilter(r *http.Request) (filter CategoryFilter) {
+func (filter CategoryFilter) Parse(r *http.Request) (*CategoryFilter, error) {
 	if name := r.URL.Query().Get("name"); name != "" {
 		filter.Name = name
 	}
-	if isActive := r.URL.Query().Get("is_active"); isActive != "" {
-		filter.IsActive = isActive == "1"
+	if isActiveValue := r.URL.Query().Get("is_active"); isActiveValue != "" {
+		isActive := isActiveValue == "1"
+		filter.IsActive = &isActive
 	}
-	return
+	return &filter, nil
 }
 
 func (i NewCategory) ToModel(s *app.Session) Category {
@@ -67,11 +68,9 @@ func (i *NewCategory) ValidationRules(vc *v.ValidationContext) {
 
 func (existing *Category) ValidationRules(vc *v.ValidationContext) {
 	vc.OnDelete(func(s *app.Session, appendFunc func(...v.Rule)) {
-		userFilter := UserFilter(s)
-		appendFunc(validate.NoResultRule("items", "category is used in item", userFilter))
+		appendFunc(validate.NoResultRule("items", "category is used in item", validate.NewFilter("category_id = ?", s.ResId)))
 	})
 	vc.OnActiveStatusChange(func(s *app.Session, af v.AppendFunc) {
-		userFilter := UserFilter(s)
-		af(validate.NoResultRule("items", "category is used in item", userFilter).When(existing.IsActive == false))
+		af(validate.NoResultRule("items", "category is used in item", validate.NewFilter("category_id = ?", s.ResId)).When(existing.IsActive == false))
 	})
 }

@@ -71,10 +71,11 @@ type uniqueRule struct {
 // exceptId works if > 0
 func UniqueRule(table string, column string, value any, exceptId int, filter FilterFunc) *uniqueRule {
 	return &uniqueRule{
-		table:  table,
-		column: column,
-		value:  value,
-		filter: filter,
+		table:    table,
+		column:   column,
+		value:    value,
+		exceptId: exceptId,
+		filter:   filter,
 	}
 }
 
@@ -142,7 +143,10 @@ func (r *noResultRule) Validate(ctx context.Context, c *app.Container) error {
 	if err != nil {
 		return serverError(err)
 	}
-	return clientError(r.message)
+	if r.count > 0 {
+		return clientError(r.message)
+	}
+	return nil
 }
 
 type failure struct {

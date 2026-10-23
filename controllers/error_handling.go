@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
+	"github.com/linn221/expenses/config"
 	"github.com/linn221/expenses/utils"
 	"github.com/linn221/expenses/validate"
 	"gorm.io/gorm"
@@ -22,6 +24,11 @@ func writeError(w http.ResponseWriter, err error) {
 	case errors.Is(err, utils.ErrInternalServerError):
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	default:
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		if config.Cfg.DEV_MODE() {
+			http.Error(w, "internal server error: "+err.Error(), http.StatusInternalServerError)
+		} else {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Printf("internal server error: %v\n", err)
+		}
 	}
 }
