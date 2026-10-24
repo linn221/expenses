@@ -97,11 +97,7 @@ func CreateHandler[T any, I models.NewModel[T]](c *app.Container, service Create
 		}
 
 		// Get presentation for http response
-		res, err := getResource(service, result)
-		if err != nil {
-			writeError(w, err)
-			return
-		}
+		res := getResource(service, result)
 
 		// Send response
 		w.WriteHeader(http.StatusCreated)
@@ -183,11 +179,7 @@ func UpdateHandler[T any, I models.NewModel[T]](c *app.Container, service Update
 		}
 
 		// Get presentation for http response
-		res, err := getResource(service, result)
-		if err != nil {
-			writeError(w, err)
-			return
-		}
+		res := getResource(service, result)
 
 		// Send response
 		w.WriteHeader(http.StatusOK)
@@ -279,12 +271,7 @@ func GetHandler[T any](service Getter[T]) http.HandlerFunc {
 		}
 
 		// Get presentation for http response
-		res, err := getResource(service, result)
-		if err != nil {
-			writeError(w, err)
-			return
-		}
-
+		res := getResource(service, result)
 		// Send response
 		w.WriteHeader(http.StatusOK)
 		utils.Must(json.NewEncoder(w).Encode(res))
@@ -317,7 +304,8 @@ func ListWithFilterHandler[T any, F QueryParser[F]](service Lister[T, *F]) http.
 			writeError(w, err)
 			return
 		}
-		utils.Must(json.NewEncoder(w).Encode(results))
+		response := getCollectionResource(service, results)
+		utils.Must(json.NewEncoder(w).Encode(response))
 	}
 }
 

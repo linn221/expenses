@@ -32,12 +32,6 @@ type NewItem struct {
 	CategoryId int             `json:"category_id" validate:"required"`
 }
 
-type ItemFilter struct {
-	Search string
-	// Price      decimal.Decimal
-	CategoryId int
-}
-
 func (input NewItem) ToModel(session *app.Session) Item {
 
 	code := strings.ToLower(input.Name)[:min(6, len(input.Name))]
@@ -58,6 +52,35 @@ func (item *Item) Resource() any {
 		Price    string
 		Category string
 	}{item.Id, item.Name, item.Code, item.Price.String(), item.Category.Name}
+}
+
+type itemCollectionInstance struct {
+	Id       int
+	Name     string
+	Price    decimal.Decimal
+	Category string
+}
+
+type ItemCollection struct {
+	Items []itemCollectionInstance
+}
+
+func (collection ItemCollection) AddInstances(results []Item) *ItemCollection {
+	addInstancesToCollection(results, func(m Item) itemCollectionInstance {
+		return itemCollectionInstance{
+			Id:       m.Id,
+			Name:     m.Name,
+			Price:    m.Price,
+			Category: m.Category.Name,
+		}
+	})
+	return &collection
+}
+
+type ItemFilter struct {
+	Search string
+	// Price      decimal.Decimal
+	CategoryId int
 }
 
 func (f ItemFilter) Parse(r *http.Request) (*ItemFilter, error) {

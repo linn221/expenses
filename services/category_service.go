@@ -43,12 +43,16 @@ func (s *categoryService) List(session *app.Session, filter *models.CategoryFilt
 }
 
 // optional
-func (s *categoryService) Resource(result *models.Category) (any, error) {
+func (s *categoryService) Resource(result *models.Category) any {
 
 	return struct {
 		Id   int
 		Name string
 	}{Id: result.Id,
-		Name: result.Name}, nil
+		Name: result.Name}
 
+}
+
+func (s *categoryService) CollectionResource() models.CategoryCollection {
+	return models.CategoryCollection{}
 }

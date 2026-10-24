@@ -24,6 +24,36 @@ type CategoryFilter struct {
 	IsActive *bool
 }
 
+// CategoryCollection for http presentation
+type CategoryCollection struct {
+	Instances []categoryCollectionInstance
+}
+
+type categoryCollectionInstance struct {
+	Id   int
+	Name string
+}
+
+func addInstancesToCollection[Model, Instance any](results []Model, toCollectionInstance func(m Model) Instance) []Instance {
+	instances := make([]Instance, 0, len(results))
+	for _, r := range results {
+		instances = append(instances, toCollectionInstance(r))
+	}
+
+	return instances
+}
+
+func (list CategoryCollection) AddInstances(results []Category) *CategoryCollection {
+	instances := addInstancesToCollection(results, func(m Category) categoryCollectionInstance {
+		return categoryCollectionInstance{
+			Id:   m.Id,
+			Name: m.Name,
+		}
+	})
+	list.Instances = instances
+	return &list
+}
+
 func (filter CategoryFilter) Parse(r *http.Request) (*CategoryFilter, error) {
 	if name := r.URL.Query().Get("name"); name != "" {
 		filter.Name = name

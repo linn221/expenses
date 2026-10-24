@@ -39,7 +39,7 @@ func (c *loginController) Register() http.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		res, err := getResource(c.Services.LoginService, result)
+		res := getResource(c.Services.LoginService, result)
 		if err != nil {
 			return err
 		}
