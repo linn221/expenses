@@ -5,10 +5,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type UpdatableModel[T any] interface {
-	UpdateValues(input T) map[string]any
-}
-
 func startTransaction(c *app.Container, s *app.Session) {
 	tx := c.DB.WithContext(s.Ctx).Begin()
 	s.Tx = tx

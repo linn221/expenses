@@ -5,22 +5,22 @@ import (
 	"github.com/linn221/expenses/services"
 )
 
-type Controllers struct {
+type Provider struct {
 	CategoryController *categoryController
 	ItemController     *itemController
 	LoginController    *loginController
-	BalanceController  *balanceController
+	WalletController   *walletController
 	IncomeController   *incomeController
 	ExpenseController  *expenseController
 }
 
-func LoadControllers(c *app.Container, provider *services.Provider) Controllers {
+func New(c *app.Container, provider *services.Provider) *Provider {
 	base := myController{Container: c, Services: provider}
-	return Controllers{
+	return &Provider{
 		CategoryController: &categoryController{myController: base},
 		ItemController:     &itemController{myController: base},
 		LoginController:    &loginController{Services: provider},
-		BalanceController:  &balanceController{myController: base},
+		WalletController:   &walletController{myController: base},
 		IncomeController:   &incomeController{myController: base},
 		ExpenseController:  &expenseController{myController: base},
 	}

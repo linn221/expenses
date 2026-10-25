@@ -8,7 +8,7 @@ const (
 	ReferenceTypeExpense  ReferenceType = "expenses"
 	ReferenceTypeIncome   ReferenceType = "incomes"
 	ReferenceTypeCategory ReferenceType = "categories"
-	ReferenceTypeBalance  ReferenceType = "balances"
+	ReferenceTypeWallet   ReferenceType = "wallets"
 )
 
 type Image struct {

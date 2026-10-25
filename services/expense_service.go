@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/linn221/expenses/app"
+	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 	"github.com/linn221/expenses/utils"
 )
@@ -13,18 +14,18 @@ type expenseService struct {
 func (s *expenseService) Create(session *app.Session, input models.Expense) (*models.Expense, error) {
 	session.StartTransaction(s.Container)
 	defer session.Rollback()
-	//get balance
-	var balance models.Balance
-	err := session.SelectForUpdate(&balance, "id = ?", input.BalanceId)
+	//get wallet
+	var wallet models.Wallet
+	err := session.SelectForUpdate(&wallet, "id = ?", input.WalletId)
 	if err != nil {
 		return nil, err
 	}
-	if balance.Current.LessThan(input.Amount) {
+	if wallet.Current.LessThan(input.Amount) {
 		return nil, utils.NewBadRequest("expense amount must not be greater than wallet's balance")
 	}
 
 	delta := input.Amount.Neg()
-	if err := incrementBalance(session, input.BalanceId, delta); err != nil {
+	if err := incrementWallet(session, input.WalletId, delta); err != nil {
 		return nil, err
 	}
 
@@ -47,18 +48,18 @@ func (s *expenseService) Create(session *app.Session, input models.Expense) (*mo
 func (s *expenseService) Update(session *app.Session, existing *models.Expense, input *models.Expense) (*models.Expense, error) {
 	session.StartTransaction(s.Container)
 	defer session.Rollback()
-	//get balance
-	var balance models.Balance
-	err := session.SelectForUpdate(&balance, "id = ?", input.BalanceId)
+	//get wallet
+	var wallet models.Wallet
+	err := session.SelectForUpdate(&wallet, "id = ?", input.WalletId)
 	if err != nil {
 		return nil, err
 	}
 	delta := input.Amount.Sub(existing.Amount).Neg()
-	if balance.Current.LessThan(delta.Abs()) {
+	if wallet.Current.LessThan(delta.Abs()) {
 		return nil, utils.NewBadRequest("expense amount must not be greater than wallet's balance")
 	}
 
-	if err := incrementBalance(session, input.BalanceId, delta); err != nil {
+	if err := incrementWallet(session, input.WalletId, delta); err != nil {
 		return nil, err
 	}
 
@@ -83,7 +84,7 @@ func (s *expenseService) Delete(session *app.Session, record *models.Expense) (*
 	session.StartTransaction(s.Container)
 	defer session.Rollback()
 
-	err := session.Tx.Exec(`UPDATE balances SET current = current + ? WHERE id = ?`, record.Amount.Abs(), record.BalanceId).Error
+	err := session.Tx.Exec(`UPDATE wallets SET current = current + ? WHERE id = ?`, record.Amount.Abs(), record.WalletId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +100,7 @@ func (s *expenseService) Get(session *app.Session) (*models.Expense, error) {
 	return selectResource[models.Expense](s.Container, session)
 }
 
-func (s *expenseService) List(session *app.Session, filter *models.ExpenseFilter) ([]models.Expense, error) {
+func (s *expenseService) List(session *app.Session, filter *dtos.ExpenseFilter) ([]models.Expense, error) {
 	var results []models.Expense
 	return results, nil
 }

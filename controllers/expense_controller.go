@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 )
 
@@ -11,11 +12,11 @@ type expenseController struct {
 }
 
 func (c *expenseController) Create() http.HandlerFunc {
-	return CreateHandler[models.Expense, models.NewExpense](c.Container, c.Services.ExpenseService)
+	return CreateHandler[models.Expense, dtos.NewExpense](c.Container, c.Services.ExpenseService)
 }
 
 func (c *expenseController) Update() http.HandlerFunc {
-	return UpdateHandler[models.Expense, models.NewExpense](c.Container, c.Services.ExpenseService)
+	return UpdateHandler[models.Expense, dtos.NewExpense](c.Container, c.Services.ExpenseService)
 }
 
 func (c *expenseController) Delete() http.HandlerFunc {
@@ -27,5 +28,5 @@ func (c *expenseController) Get() http.HandlerFunc {
 }
 
 func (c *expenseController) List() http.HandlerFunc {
-	return ListWithFilterHandler[models.Expense, models.ExpenseFilter](c.Services.ExpenseService)
+	return ListWithFilterHandler[models.Expense, dtos.ExpenseFilter](c.Services.ExpenseService)
 }

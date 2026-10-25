@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 )
 
@@ -11,11 +12,11 @@ type itemController struct {
 }
 
 func (c *itemController) Create() http.HandlerFunc {
-	return CreateHandler[models.Item, models.NewItem](c.Container, c.Services.ItemService)
+	return CreateHandler[models.Item, dtos.NewItem](c.Container, c.Services.ItemService)
 }
 
 func (c *itemController) Update() http.HandlerFunc {
-	return UpdateHandler[models.Item, models.NewItem](c.Container, c.Services.ItemService)
+	return UpdateHandler[models.Item, dtos.NewItem](c.Container, c.Services.ItemService)
 }
 
 func (c *itemController) Delete() http.HandlerFunc {

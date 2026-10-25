@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/linn221/expenses/app"
+	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 )
 
@@ -25,7 +26,7 @@ func (s *itemService) Delete(session *app.Session, record *models.Item) (*models
 	return deleteModel(s.Container, session, record)
 }
 
-func (s *itemService) List(session *app.Session, filter *models.ItemFilter) ([]models.Item, error) {
+func (s *itemService) List(session *app.Session, filter *dtos.ItemFilter) ([]models.Item, error) {
 	db := s.Container.DB.WithContext(session.Ctx).Model(&models.Item{}).Preload("Category").Where("user_id = ?", session.UserId)
 
 	if filter != nil {
@@ -43,4 +44,12 @@ func (s *itemService) List(session *app.Session, filter *models.ItemFilter) ([]m
 	var results []models.Item
 	err := db.Find(&results).Error
 	return results, err
+}
+
+func (s *itemService) HttpResponse() dtos.HttpResponseFromModel[models.Item] {
+	return dtos.RespondItem
+}
+
+func (s *itemService) HttpResponseCollection() dtos.HttpResponseFromModelCollection[models.Item] {
+	return dtos.RespondItemCollection
 }

@@ -4,10 +4,6 @@ import (
 	"github.com/linn221/expenses/app"
 )
 
-type Togglable interface {
-	GetIsActive() bool
-}
-
 func ToggleModel[T Togglable](session *app.Session, model T, activeStatus bool) error {
 	var err error
 	Default.AccessContainer(func(c *app.Container) {

@@ -27,25 +27,10 @@ func (u *User) Resource() any {
 	}
 }
 
-type NewUser struct {
-	Name     string `json:"name" validate:"required,min=3,max=255"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8,max=255"`
-}
-
-func (input *NewUser) ValidationRules(vc *validate.ValidationContext) {
+func (input *User) ValidationRules(vc *validate.ValidationContext) {
 	vc.OnMutate(func(s *app.Session, af validate.AppendFunc) {
 		af(
 			validate.UniqueRule("users", "email", input.Email, s.ResId, nil),
 		)
 	})
-}
-
-// func (input *NewUser) Validate(db *gorm.DB, id int) error {
-
-// }
-
-type LoginInfo struct {
-	Email    string
-	Password string
 }

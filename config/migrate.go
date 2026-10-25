@@ -10,7 +10,7 @@ func migrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&models.User{},
 		&models.Category{},
-		&models.Balance{},
+		&models.Wallet{},
 		&models.Item{},
 	)
 	if err != nil {

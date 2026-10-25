@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/linn221/expenses/app"
+	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 	"github.com/linn221/expenses/utils"
 	"github.com/linn221/expenses/validate"
@@ -14,7 +15,7 @@ type loginService struct {
 	*app.Container
 }
 
-func (s *loginService) Login(ctx context.Context, input *models.LoginInfo) (*models.User, error) {
+func (s *loginService) Login(ctx context.Context, input *dtos.LoginInfo) (*models.User, error) {
 	var user models.User
 	if err := s.DB.WithContext(ctx).Where("email = ?", input.Email).First(&user).Error; err != nil {
 		return nil, utils.NewBadRequest("email or password do not match")
@@ -29,7 +30,7 @@ func (s *loginService) Login(ctx context.Context, input *models.LoginInfo) (*mod
 	return &user, nil
 }
 
-func (s *loginService) Register(ctx context.Context, input *models.NewUser) (*models.User, error) {
+func (s *loginService) Register(ctx context.Context, input *dtos.NewUser) (*models.User, error) {
 	bs, err := utils.HashPassword(input.Password)
 	if err != nil {
 		return nil, err
@@ -40,7 +41,7 @@ func (s *loginService) Register(ctx context.Context, input *models.NewUser) (*mo
 		Password: string(bs),
 	}
 
-	err = validate.Validate(s.Container, &app.Session{Ctx: ctx}, input, validate.ActionCreate)
+	err = validate.Validate(s.Container, &app.Session{Ctx: ctx}, &user, validate.ActionCreate)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func (s *loginService) Register(ctx context.Context, input *models.NewUser) (*mo
 	if err != nil {
 		return nil, err
 	}
-	defaultWallet := models.Balance{
+	defaultWallet := models.Wallet{
 		Name:     "Wallet",
 		Currency: "MMK",
 	}

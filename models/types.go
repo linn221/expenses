@@ -9,8 +9,8 @@ type HasUserId struct {
 	UserId int `json:"user_id" gorm:"index;not nul"`
 }
 
-type HasBalanceId struct {
-	BalanceId int `json:"balance_id" gorm:"index;not null"`
+type HasWalletId struct {
+	WalletId int `json:"wallet_id" gorm:"index;not null"`
 }
 
 type HasIsActive struct {

@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 )
 
@@ -11,11 +12,11 @@ type categoryController struct {
 }
 
 func (c *categoryController) Create() http.HandlerFunc {
-	return CreateHandler[models.Category, models.NewCategory](c.Container, c.Services.CategoryService)
+	return CreateHandler[models.Category, dtos.NewCategory](c.Container, c.Services.CategoryService)
 }
 
 func (c *categoryController) Update() http.HandlerFunc {
-	return UpdateHandler[models.Category, models.NewCategory](c.Container, c.Services.CategoryService)
+	return UpdateHandler[models.Category, dtos.NewCategory](c.Container, c.Services.CategoryService)
 }
 
 func (c *categoryController) Delete() http.HandlerFunc {
@@ -27,7 +28,7 @@ func (c *categoryController) Get() http.HandlerFunc {
 }
 
 func (c *categoryController) List() http.HandlerFunc {
-	return ListWithFilterHandler[models.Category, models.CategoryFilter](c.Services.CategoryService)
+	return ListWithFilterHandler[models.Category, dtos.CategoryFilter](c.Services.CategoryService)
 }
 
 func (c *categoryController) ToggleIsActive() http.HandlerFunc {

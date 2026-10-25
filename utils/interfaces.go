@@ -2,6 +2,10 @@ package utils
 
 import "time"
 
+type Locker interface {
+	Lock(string) (unLock func() error, err error)
+}
+
 type CacheService interface {
 	GetObject(key string, dest any) (bool, error)
 	GetValue(key string) (string, bool, error)

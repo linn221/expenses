@@ -39,24 +39,6 @@ type ResourceRoute struct {
 	middleware Middleware
 }
 
-type ResourceController interface {
-	Create() http.HandlerFunc
-	Update() http.HandlerFunc
-	Delete() http.HandlerFunc
-	Get() http.HandlerFunc
-}
-
-type PatchController interface {
-	Patch() http.HandlerFunc
-}
-type ListController interface {
-	List() http.HandlerFunc
-}
-
-type IsActiveToggleController interface {
-	ToggleIsActive() http.HandlerFunc
-}
-
 func (res *ResourceRoute) applyRoutes(mux *http.ServeMux, middleware Middleware) {
 
 	registerRoute := func(pattern string, f http.HandlerFunc) {

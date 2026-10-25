@@ -7,6 +7,7 @@ import (
 
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/config"
+	"github.com/linn221/expenses/controllers"
 	"github.com/linn221/expenses/middlewares"
 	"github.com/linn221/expenses/services"
 	"github.com/linn221/expenses/utils"
@@ -15,7 +16,7 @@ import (
 func Serve(c *app.Container) {
 	mux := http.NewServeMux()
 	services := services.New(c)
-	controllers := loadControllers(c, services)
+	controllers := controllers.New(c, services)
 	sessionMiddleware := middlewares.Session(c.Cache)
 	var rateLimiter = middlewares.NewRateLimiter(c.Cache, time.Minute*2, 50, "login", func(r *http.Request) (string, error) {
 		return utils.GetClientIP(r), nil
@@ -28,7 +29,7 @@ func Serve(c *app.Container) {
 
 	rest := NewRestRouter(middlewares.Auth())
 	rest.NewResource("/categories", controllers.CategoryController)
-	rest.NewResource("/balances", controllers.BalanceController)
+	rest.NewResource("/wallets", controllers.WalletController)
 	rest.NewResource("/items", controllers.ItemController)
 	rest.NewResource("/incomes", controllers.IncomeController)
 	rest.NewResource("/expenses", controllers.ExpenseController)

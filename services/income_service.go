@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/linn221/expenses/app"
+	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 	"github.com/shopspring/decimal"
 )
@@ -18,7 +19,7 @@ func (s *incomeService) Create(session *app.Session, model models.Income) (*mode
 		return nil, err
 	}
 
-	if err := incrementBalance(session, model.BalanceId, model.Amount); err != nil {
+	if err := incrementWallet(session, model.WalletId, model.Amount); err != nil {
 		return nil, err
 	}
 
@@ -35,7 +36,7 @@ func (s *incomeService) Update(session *app.Session, existing *models.Income, in
 		return nil, err
 	}
 
-	if err := incrementBalance(session, existing.BalanceId, delta); err != nil {
+	if err := incrementWallet(session, existing.WalletId, delta); err != nil {
 		return nil, err
 	}
 
@@ -52,7 +53,7 @@ func (s *incomeService) Delete(session *app.Session, record *models.Income) (*mo
 		return nil, err
 	}
 
-	if err := incrementBalance(session, record.BalanceId, subtracted.Neg()); err != nil {
+	if err := incrementWallet(session, record.WalletId, subtracted.Neg()); err != nil {
 		return nil, err
 	}
 	return result, session.Commit()
@@ -62,7 +63,7 @@ func (s *incomeService) Get(session *app.Session) (*models.Income, error) {
 	return selectResource[models.Income](s.Container, session)
 }
 
-func (s *incomeService) List(session *app.Session, filter *models.IncomeFilter) ([]models.Income, error) {
+func (s *incomeService) List(session *app.Session, filter *dtos.IncomeFilter) ([]models.Income, error) {
 	db := s.Container.DB.WithContext(session.Ctx).Model(&models.Income{})
 	if filter != nil {
 		if filter.IncomeDate != (models.MyDate{}) {
