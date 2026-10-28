@@ -17,3 +17,8 @@ func (i NewWallet) ToModel(session *app.Session) models.Wallet {
 		HasUserId: models.UserId(session),
 	}
 }
+
+type WalletResource struct {
+	Id   int
+	Name string
+}

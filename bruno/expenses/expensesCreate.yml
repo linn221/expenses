@@ -1,0 +1,27 @@
+info:
+  name: expensesCreate
+  type: http
+
+http:
+  method: POST
+  url: "{{url}}/expenses"
+  body:
+    type: json
+    data: |-
+      {
+        "expense_date": "2026-10-28",
+        "amount": "3500",
+        "note": "morning coffee",
+        "WalletId": 1,
+        "item_id": 1,
+        "qty": 1,
+        "item_price": "3500",
+        "UpdateItemPrice": false
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

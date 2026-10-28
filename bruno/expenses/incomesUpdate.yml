@@ -1,0 +1,24 @@
+info:
+  name: incomesUpdate
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{url}}/incomes/1"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "salary",
+        "amount": "550000",
+        "income_date": "2026-10-28",
+        "wallet_id": 1
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

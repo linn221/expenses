@@ -1,7 +1,9 @@
 package models
 
 import (
+	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -22,7 +24,42 @@ func (h HasIsActive) GetIsActive() bool {
 }
 
 type MyDate struct {
-	time.Time `json:"date" gorm:"index"`
+	time.Time
+}
+
+func (d MyDate) Value() (driver.Value, error) {
+	if d.Time.IsZero() {
+		return nil, nil
+	}
+	return d.Time, nil
+}
+
+func (d *MyDate) Scan(value any) error {
+	if value == nil {
+		d.Time = time.Time{}
+		return nil
+	}
+	switch v := value.(type) {
+	case time.Time:
+		d.Time = v
+		return nil
+	case []byte:
+		t, err := time.Parse("2006-01-02", string(v))
+		if err != nil {
+			return err
+		}
+		d.Time = t
+		return nil
+	case string:
+		t, err := time.Parse("2006-01-02", v)
+		if err != nil {
+			return err
+		}
+		d.Time = t
+		return nil
+	default:
+		return fmt.Errorf("cannot scan type %T into MyDate", value)
+	}
 }
 
 func (d *MyDate) UnmarshalJSON(b []byte) error {

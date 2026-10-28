@@ -1,0 +1,22 @@
+info:
+  name: walletsUpdate
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{url}}/wallets/1"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "cash",
+        "currency": "MMK"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

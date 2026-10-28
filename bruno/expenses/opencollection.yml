@@ -1,0 +1,31 @@
+opencollection: 1.0.0
+
+info:
+  name: expenses
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: apikey
+    key: session_id
+    value: 8e791c41-dcb7-44e4-b95d-8f3b2e2efa12
+    placement: header
+  variables:
+    - name: url
+      value: http://localhost:8088
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

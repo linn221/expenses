@@ -85,3 +85,11 @@ func (s *incomeService) List(session *app.Session, filter *dtos.IncomeFilter) ([
 	}
 	return incomes, nil
 }
+
+func (s *incomeService) HttpResponse() dtos.HttpResponseFromModel[models.Income] {
+	return dtos.RespondIncome
+}
+
+func (s *incomeService) HttpResponseCollection() dtos.HttpResponseFromModelCollection[models.Income] {
+	return dtos.RespondIncomeCollection
+}

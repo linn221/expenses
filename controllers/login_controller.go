@@ -40,9 +40,6 @@ func (c *loginController) Register() http.HandlerFunc {
 			return err
 		}
 		res := getResource(c.Services.LoginService, result)
-		if err != nil {
-			return err
-		}
 		return json.NewEncoder(w).Encode(res)
 	})
 }

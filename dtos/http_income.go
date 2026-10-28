@@ -11,10 +11,10 @@ import (
 )
 
 type NewIncome struct {
-	IncomeDate models.MyDate  `json:"income_date" validate:"required"`
+	IncomeDate models.MyDate   `json:"income_date" validate:"required"`
 	Amount     decimal.Decimal `json:"amount" validate:"required,gt=0"`
 	Title      string          `json:"title" validate:"required,min=3,max=255"`
-	WalletId int `json:"wallet_id" validate:"required,gte=1"`
+	WalletId   int             `json:"wallet_id" validate:"required,gte=1"`
 }
 
 type IncomeFilter struct {
@@ -67,4 +67,46 @@ func (input NewIncome) ToModel(session *app.Session) models.Income {
 	model.UserId = session.UserId
 	model.WalletId = input.WalletId
 	return model
+}
+
+type IncomeResource struct {
+	Id         int
+	Title      string
+	Amount     decimal.Decimal
+	IncomeDate time.Time
+	Wallet     WalletResource
+}
+
+type IncomeCollection struct {
+	Incomes []IncomeCollectionInstance
+}
+
+type IncomeCollectionInstance struct {
+	Id     int
+	Title  string
+	Amount decimal.Decimal
+}
+
+func RespondIncome(income *models.Income) any {
+	return &IncomeResource{
+		Id:         income.Id,
+		Title:      income.Title,
+		Amount:     income.Amount,
+		IncomeDate: income.IncomeDate.Time,
+		Wallet: WalletResource{
+			Id:   income.WalletId,
+			Name: income.Wallet.Name,
+		},
+	}
+}
+
+func RespondIncomeCollection(results []models.Income) any {
+	incomes := addToCollection(results, func(r models.Income) IncomeCollectionInstance {
+		return IncomeCollectionInstance{
+			Id:     r.Id,
+			Title:  r.Title,
+			Amount: r.Amount,
+		}
+	})
+	return &IncomeCollection{Incomes: incomes}
 }

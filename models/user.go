@@ -17,7 +17,7 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
 
-func (u *User) Resource() any {
+func (u *User) HttpResponse() any {
 	return struct {
 		Id    int `json:"id"`
 		Name  string

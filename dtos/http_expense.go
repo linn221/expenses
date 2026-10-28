@@ -11,10 +11,10 @@ import (
 )
 
 type NewExpense struct {
-	ExpenseDate models.MyDate  `json:"expense_date" validate:"required"`
+	ExpenseDate models.MyDate   `json:"expense_date" validate:"required"`
 	Amount      decimal.Decimal `json:"amount" validate:"required,gt=0"`
 	Note        string          `json:"note" validate:"required,min=3,max=255"`
-	WalletId int
+	WalletId    int
 
 	ItemId          int             `json:"item_id" validate:"required,gte=1"`
 	Qty             int             `json:"qty" validate:"required,gte=1"`
@@ -65,17 +65,25 @@ func (e ExpenseFilter) Parse(r *http.Request) (*ExpenseFilter, error) {
 
 func (input NewExpense) ToModel(session *app.Session) models.Expense {
 
-	session.PutValue(app.SessionValueUpdateItemPrice, input.ItemPrice)
+	session.PutValue(app.SessionValueUpdateItemPrice, input.UpdateItemPrice)
 	e := models.Expense{
-		ItemId:      input.ItemId,
-		Qty:         input.Qty,
-		ItemPrice:   input.ItemPrice,
-		Amount:      input.ItemPrice.Mul(decimal.NewFromInt(int64(input.Qty))),
-		ExpenseDate: input.ExpenseDate,
-		Note:        input.Note,
+		ItemId:        input.ItemId,
+		Qty:           input.Qty,
+		ItemPrice:     input.ItemPrice,
+		ExpenseAmount: input.ItemPrice.Mul(decimal.NewFromInt(int64(input.Qty))),
+		ExpenseDate:   input.ExpenseDate,
+		Note:          input.Note,
 	}
 
 	e.UserId = session.UserId
 	e.WalletId = input.WalletId
 	return e
+}
+
+func RespondExpense(expense *models.Expense) any {
+	return nil
+}
+
+func RespondExpenseCollection(results []models.Expense) any {
+	return nil
 }

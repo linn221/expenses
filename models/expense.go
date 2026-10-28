@@ -11,10 +11,10 @@ import (
 type Expense struct {
 	HasWalletId
 	HasUserId
-	Id          int             `json:"id" gorm:"primaryKey"`
-	ExpenseDate MyDate          `json:"expense_date" gorm:"index"`
-	Amount      decimal.Decimal `json:"amount"`
-	Note        string          `json:"note"`
+	Id            int             `json:"id" gorm:"primaryKey"`
+	ExpenseDate   MyDate          `json:"expense_date" gorm:"index"`
+	ExpenseAmount decimal.Decimal `json:"expense_amount"`
+	Note          string          `json:"note"`
 
 	ItemId    int             `json:"item_id" gorm:"index"`
 	Qty       int             `json:"qty"`
@@ -32,11 +32,12 @@ type Expense struct {
 
 func (existing *Expense) UpdateValues(input *Expense) map[string]any {
 	m := map[string]any{
-		"ExpenseDate": input.ExpenseDate,
-		"Note":        input.Note,
-		"ItemId":      input.ItemId,
-		"Qty":         input.Qty,
-		"ItemPrice":   input.ItemPrice,
+		"ExpenseDate":   input.ExpenseDate,
+		"ExpenseAmount": input.ExpenseAmount,
+		"Note":          input.Note,
+		"ItemId":        input.ItemId,
+		"Qty":           input.Qty,
+		"ItemPrice":     input.ItemPrice,
 	}
 	return m
 }

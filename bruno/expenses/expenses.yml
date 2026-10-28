@@ -1,0 +1,14 @@
+info:
+  name: expenses
+  type: http
+
+http:
+  method: GET
+  url: "{{url}}/expenses"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

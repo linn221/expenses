@@ -1,0 +1,21 @@
+info:
+  name: categoriesUpdate
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{url}}/categories/1"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "shit"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

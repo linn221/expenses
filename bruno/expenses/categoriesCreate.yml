@@ -1,0 +1,20 @@
+info:
+  name: categoriesCreate
+  type: http
+
+http:
+  method: POST
+  url: "{{url}}/categories"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "coffee"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

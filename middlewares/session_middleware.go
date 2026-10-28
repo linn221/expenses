@@ -17,6 +17,19 @@ func Session(sessionStore utils.CacheService) func(http.Handler) http.Handler {
 				http.Error(w, err.Error(), 400)
 				return
 			}
+			if err == http.ErrNoCookie {
+				sessionId := r.Header.Get("session_id")
+				if sessionId != "" {
+					userId, err := lookUpUser(sessionStore, sessionId)
+					if err != nil {
+						http.Error(w, err.Error(), http.StatusUnauthorized)
+						return
+					}
+					ctx := r.Context()
+					ctx = myctx.SetUserId(ctx, userId)
+					r = r.WithContext(ctx)
+				}
+			}
 			if cookies != nil && cookies.Value != "" {
 				userId, err := lookUpUser(sessionStore, cookies.Value)
 				if err != nil {

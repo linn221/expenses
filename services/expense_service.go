@@ -20,11 +20,11 @@ func (s *expenseService) Create(session *app.Session, input models.Expense) (*mo
 	if err != nil {
 		return nil, err
 	}
-	if wallet.Current.LessThan(input.Amount) {
+	if wallet.Current.LessThan(input.ExpenseAmount) {
 		return nil, utils.NewBadRequest("expense amount must not be greater than wallet's balance")
 	}
 
-	delta := input.Amount.Neg()
+	delta := input.ExpenseAmount.Neg()
 	if err := incrementWallet(session, input.WalletId, delta); err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (s *expenseService) Update(session *app.Session, existing *models.Expense, 
 	if err != nil {
 		return nil, err
 	}
-	delta := input.Amount.Sub(existing.Amount).Neg()
+	delta := input.ExpenseAmount.Sub(existing.ExpenseAmount).Neg()
 	if wallet.Current.LessThan(delta.Abs()) {
 		return nil, utils.NewBadRequest("expense amount must not be greater than wallet's balance")
 	}
@@ -84,7 +84,7 @@ func (s *expenseService) Delete(session *app.Session, record *models.Expense) (*
 	session.StartTransaction(s.Container)
 	defer session.Rollback()
 
-	err := session.Tx.Exec(`UPDATE wallets SET current = current + ? WHERE id = ?`, record.Amount.Abs(), record.WalletId).Error
+	err := session.Tx.Exec(`UPDATE wallets SET current = current + ? WHERE id = ?`, record.ExpenseAmount.Abs(), record.WalletId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -103,4 +103,12 @@ func (s *expenseService) Get(session *app.Session) (*models.Expense, error) {
 func (s *expenseService) List(session *app.Session, filter *dtos.ExpenseFilter) ([]models.Expense, error) {
 	var results []models.Expense
 	return results, nil
+}
+
+func (s *expenseService) HttpResponse() dtos.HttpResponseFromModel[models.Expense] {
+	return dtos.RespondExpense
+}
+
+func (s *expenseService) HttpResponseCollection() dtos.HttpResponseFromModelCollection[models.Expense] {
+	return dtos.RespondExpenseCollection
 }
