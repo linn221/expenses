@@ -1,6 +1,7 @@
 info:
   name: expensesCreate
   type: http
+  seq: 1
 
 http:
   method: POST
@@ -10,13 +11,12 @@ http:
     data: |-
       {
         "expense_date": "2026-10-28",
-        "amount": "3500",
         "note": "morning coffee",
-        "WalletId": 1,
-        "item_id": 1,
+        "WalletId": 2,
+        "item_id": 3,
         "qty": 1,
-        "item_price": "3500",
-        "UpdateItemPrice": false
+        "item_price": "500",
+        "UpdateItemPrice": true
       }
   auth: inherit
 
@@ -25,3 +25,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

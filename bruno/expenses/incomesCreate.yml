@@ -1,6 +1,7 @@
 info:
   name: incomesCreate
   type: http
+  seq: 1
 
 http:
   method: POST
@@ -11,8 +12,8 @@ http:
       {
         "title": "salary",
         "amount": "500000",
-        "income_date": "2026-10-28",
-        "wallet_id": 1
+        "income_date": "2026-09-30",
+        "wallet_id": 2
       }
   auth: inherit
 
@@ -21,3 +22,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

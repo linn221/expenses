@@ -19,8 +19,8 @@ type Expense struct {
 	ItemId    int             `json:"item_id" gorm:"index"`
 	Qty       int             `json:"qty"`
 	ItemPrice decimal.Decimal `json:"item_price"`
-	Wallet    Wallet `gorm:"->"`
-	Item      Item   `gorm:"->"`
+	Wallet    Wallet          `gorm:"->"`
+	Item      Item            `gorm:"->"`
 	CreatedAt time.Time       `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time       `json:"updated_at" gorm:"autoUpdateTime"`
 }
@@ -48,6 +48,10 @@ func (input *Expense) ValidationRules(vc *validate.ValidationContext) {
 	vc.OnMutate(func(s *app.Session, af validate.AppendFunc) {
 		if !input.ItemPrice.GreaterThan(decimal.Zero) {
 			af(validate.Failure("item price must be greater than 0"))
+			return
+		}
+		if !input.ExpenseAmount.GreaterThan(decimal.Zero) {
+			af(validate.Failure("amount must be greater than zero"))
 			return
 		}
 		userFilter := UserFilter(s)

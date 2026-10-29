@@ -14,7 +14,7 @@ type Item struct {
 	Code       string          `json:"code" gorm:"index"`
 	Price      decimal.Decimal `json:"price"`
 	CategoryId int             `json:"category_id" gorm:"index"`
-	Category   Category        `json:"category"`
+	Category   Category        `json:"category" gorm:"->"`
 	HasUserId
 	HasIsActive
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`

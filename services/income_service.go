@@ -22,7 +22,11 @@ func (s *incomeService) Create(session *app.Session, model models.Income) (*mode
 		return nil, err
 	}
 
-	return &model, session.Commit()
+	if err := session.Commit(); err != nil {
+		return nil, err
+	}
+	session.ResId = model.Id
+	return s.Get(session)
 }
 
 func (s *incomeService) Update(session *app.Session, existing *models.Income, input *models.Income) (*models.Income, error) {
@@ -59,7 +63,7 @@ func (s *incomeService) Delete(session *app.Session, record *models.Income) (*mo
 }
 
 func (s *incomeService) Get(session *app.Session) (*models.Income, error) {
-	return selectResource[models.Income](s.Container, session)
+	return selectResource[models.Income](s.Container, session, "Wallet")
 }
 
 func (s *incomeService) List(session *app.Session, walletId int, filter *dtos.IncomeFilter) ([]models.Income, error) {

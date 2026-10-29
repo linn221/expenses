@@ -15,9 +15,9 @@ type Income struct {
 	Title      string          `json:"title"`
 	Amount     decimal.Decimal `json:"amount"`
 	IncomeDate MyDate          `json:"income_date" gorm:"index"`
-	Wallet     *Wallet
-	CreatedAt  time.Time `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt  time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	Wallet     *Wallet         `gorm:"->"`
+	CreatedAt  time.Time       `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt  time.Time       `json:"updated_at" gorm:"autoUpdateTime"`
 }
 
 func (existing *Income) UpdateValues(input *Income) map[string]any {
@@ -31,6 +31,11 @@ func (existing *Income) UpdateValues(input *Income) map[string]any {
 
 func (input *Income) ValidationRules(vc *validate.ValidationContext) {
 	vc.OnMutate(func(s *app.Session, af validate.AppendFunc) {
+		if !input.Amount.GreaterThan(decimal.Zero) {
+			af(validate.Failure("amount must be greater than zero"))
+			return
+		}
+
 		userFilter := UserFilter(s)
 		af(validate.ExistsRule("wallets", input.WalletId, "wallet not found", userFilter))
 	})

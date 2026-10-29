@@ -19,10 +19,11 @@ type NewItem struct {
 }
 
 func (input NewItem) ToModel(session *app.Session) models.Item {
-
-	code := strings.ToLower(input.Name)[:min(6, len(input.Name))]
+	code := input.Code
+	if code == "" {
+		code = strings.ToLower(input.Name)[:min(6, len(input.Name))]
+	}
 	item := models.Item{
-
 		Name:       input.Name,
 		Code:       code,
 		Price:      input.Price,
@@ -80,9 +81,11 @@ func RespondItem(i *models.Item) any {
 }
 
 type itemCollectionInstance struct {
-	Id       int    `json:"id"`
-	Name     string `json:"name"`
-	Category string `json:"category"`
+	Id       int             `json:"id"`
+	Name     string          `json:"name"`
+	Code     string          `json:"code"`
+	Price    decimal.Decimal `json:"price"`
+	Category string          `json:"category"`
 }
 
 type itemCollection struct {
@@ -95,6 +98,8 @@ func RespondItemCollection(items []models.Item) any {
 			Id:       i.Id,
 			Name:     i.Name,
 			Category: i.Category.Name,
+			Code:     i.Code,
+			Price:    i.Price,
 		}
 	})
 	return &itemCollection{Items: results}

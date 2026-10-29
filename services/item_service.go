@@ -15,7 +15,10 @@ func (s *itemService) Create(session *app.Session, input models.Item) (*models.I
 }
 
 func (s *itemService) Update(session *app.Session, existing *models.Item, input *models.Item) (*models.Item, error) {
-	return updateModel(s.Container, session, existing, input)
+	if _, err := updateModel(s.Container, session, existing, input); err != nil {
+		return nil, err
+	}
+	return s.Get(session)
 }
 
 func (s *itemService) Get(session *app.Session) (*models.Item, error) {

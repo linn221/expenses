@@ -5,15 +5,15 @@ info:
 
 http:
   method: PUT
-  url: "{{url}}/items/1"
+  url: "{{url}}/items/2"
   body:
     type: json
     data: |-
       {
-        "name": "latte",
+        "name": "Latte 2",
         "code": "latte",
-        "price": "4000",
-        "category_id": 1
+        "price": "5000",
+        "category_id": 2
       }
   auth: inherit
 
@@ -22,3 +22,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

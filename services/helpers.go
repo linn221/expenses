@@ -32,7 +32,7 @@ func listResource[T any](c *app.Container, s *app.Session) ([]T, error) {
 
 func ListAllResource[T any](c *app.Container, s *app.Session) ([]T, error) {
 	var results []T
-	err := c.DB.WithContext(s.Ctx).Where("user_id = ?", s.ResId).Find(&results).Error
+	err := c.DB.WithContext(s.Ctx).Where("user_id = ?", s.UserId).Find(&results).Error
 	return results, err
 }
 
