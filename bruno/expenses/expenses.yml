@@ -4,7 +4,7 @@ info:
 
 http:
   method: GET
-  url: "{{url}}/expenses"
+  url: "{{url}}/expenses/list/1?search=coffee&expense_date=2026-10-28&min_amount=0&max_amount=10000"
   auth: inherit
 
 settings:

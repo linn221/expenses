@@ -19,6 +19,8 @@ type Expense struct {
 	ItemId    int             `json:"item_id" gorm:"index"`
 	Qty       int             `json:"qty"`
 	ItemPrice decimal.Decimal `json:"item_price"`
+	Wallet    Wallet `gorm:"->"`
+	Item      Item   `gorm:"->"`
 	CreatedAt time.Time       `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time       `json:"updated_at" gorm:"autoUpdateTime"`
 }

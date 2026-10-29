@@ -1,0 +1,13 @@
+---
+description: Keep the Bruno collection in sync with API changes
+alwaysApply: true
+---
+
+# Bruno collection
+
+When a change adds, removes, or alters an HTTP endpoint — path, method, request body, or query parameters — update `bruno/expenses/` in the same change.
+
+- Match existing request files: `{resource}.yml` (list), `{resource}Create.yml`, `{resource}Update.yml`, `{resource}Details.yml`, `{resource}Delete.yml`.
+- Use `{{url}}` for the host, `auth: inherit`, and the same settings block as the other requests.
+- List requests must include the path and query parameters the handler actually reads.
+- Request bodies must match the JSON field names and example shapes used by the DTO.

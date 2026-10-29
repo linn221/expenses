@@ -1,6 +1,7 @@
 info:
   name: categoriesCreate
   type: http
+  seq: 1
 
 http:
   method: POST
@@ -9,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "name": "coffee"
+        "name": "transportation"
       }
   auth: inherit
 
@@ -18,3 +19,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

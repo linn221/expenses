@@ -6,22 +6,24 @@ import (
 )
 
 type Provider struct {
-	CategoryController *categoryController
-	ItemController     *itemController
-	LoginController    *loginController
-	WalletController   *walletController
-	IncomeController   *incomeController
-	ExpenseController  *expenseController
+	CategoryController        *categoryController
+	ItemController            *itemController
+	LoginController           *loginController
+	WalletController          *walletController
+	IncomeController          *incomeController
+	ExpenseController         *expenseController
+	CostPerspectiveController *costPerspectiveController
 }
 
 func New(c *app.Container, provider *services.Provider) *Provider {
 	base := myController{Container: c, Services: provider}
 	return &Provider{
-		CategoryController: &categoryController{myController: base},
-		ItemController:     &itemController{myController: base},
-		LoginController:    &loginController{Services: provider},
-		WalletController:   &walletController{myController: base},
-		IncomeController:   &incomeController{myController: base},
-		ExpenseController:  &expenseController{myController: base},
+		CategoryController:        &categoryController{myController: base},
+		ItemController:            &itemController{myController: base},
+		LoginController:           &loginController{Services: provider},
+		WalletController:          &walletController{myController: base},
+		IncomeController:          &incomeController{myController: base},
+		ExpenseController:         &expenseController{myController: base},
+		CostPerspectiveController: &costPerspectiveController{myController: base},
 	}
 }

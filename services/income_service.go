@@ -4,7 +4,6 @@ import (
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
-	"github.com/shopspring/decimal"
 )
 
 type incomeService struct {
@@ -63,24 +62,24 @@ func (s *incomeService) Get(session *app.Session) (*models.Income, error) {
 	return selectResource[models.Income](s.Container, session)
 }
 
-func (s *incomeService) List(session *app.Session, filter *dtos.IncomeFilter) ([]models.Income, error) {
-	db := s.Container.DB.WithContext(session.Ctx).Model(&models.Income{})
+func (s *incomeService) List(session *app.Session, walletId int, filter *dtos.IncomeFilter) ([]models.Income, error) {
+	dbctx := s.Container.DB.WithContext(session.Ctx).Where("wallet_id = ?", walletId)
 	if filter != nil {
 		if filter.IncomeDate != (models.MyDate{}) {
-			db = db.Where("income_date = ?", filter.IncomeDate)
+			dbctx = dbctx.Where("income_date = ?", filter.IncomeDate)
 		}
 		if filter.Search != "" {
-			db = db.Where("title LIKE ?", "%"+filter.Search+"%")
+			dbctx = dbctx.Where("title LIKE ?", "%"+filter.Search+"%")
 		}
-		if filter.MaxAmount.GreaterThan(decimal.Zero) {
-			db = db.Where("amount <= ?", filter.MaxAmount)
+		if !filter.MaxAmount.IsZero() {
+			dbctx = dbctx.Where("amount <= ?", filter.MaxAmount)
 		}
-		if filter.MinAmount.GreaterThan(decimal.Zero) {
-			db = db.Where("amount >= ?", filter.MinAmount)
+		if !filter.MinAmount.IsZero() {
+			dbctx = dbctx.Where("amount >= ?", filter.MinAmount)
 		}
 	}
 	var incomes []models.Income
-	if err := db.Find(&incomes).Error; err != nil {
+	if err := dbctx.Find(&incomes).Error; err != nil {
 		return nil, err
 	}
 	return incomes, nil

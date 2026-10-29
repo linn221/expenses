@@ -62,11 +62,11 @@ func (f ItemFilter) Parse(r *http.Request) (*ItemFilter, error) {
 }
 
 type itemResponse struct {
-	Id       int
-	Name     string
-	Code     string
-	Price    decimal.Decimal
-	Category string
+	Id       int             `json:"id"`
+	Name     string          `json:"name"`
+	Code     string          `json:"code"`
+	Price    decimal.Decimal `json:"price"`
+	Category string          `json:"category"`
 }
 
 func RespondItem(i *models.Item) any {
@@ -80,13 +80,13 @@ func RespondItem(i *models.Item) any {
 }
 
 type itemCollectionInstance struct {
-	Id       int
-	Name     string
-	Category string
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Category string `json:"category"`
 }
 
 type itemCollection struct {
-	Items []itemCollectionInstance
+	Items []itemCollectionInstance `json:"items"`
 }
 
 func RespondItemCollection(items []models.Item) any {

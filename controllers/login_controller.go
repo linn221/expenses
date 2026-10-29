@@ -28,8 +28,7 @@ func (c *loginController) Login() http.HandlerFunc {
 		}
 
 		utils.SetCookies(w, "session_id", sessionId)
-		w.Write([]byte("ok"))
-		return nil
+		return json.NewEncoder(w).Encode(dtos.LoginResponse{SessionId: sessionId})
 	})
 }
 

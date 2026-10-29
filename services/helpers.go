@@ -14,9 +14,13 @@ func transaction(c *app.Container, s *app.Session, f func(tx *gorm.DB) error) er
 	return c.DB.WithContext(s.Ctx).Transaction(f)
 }
 
-func selectResource[T any](c *app.Container, s *app.Session) (*T, error) {
+func selectResource[T any](c *app.Container, s *app.Session, preloads ...string) (*T, error) {
 	var v T
-	err := c.DB.WithContext(s.Ctx).Where("user_id = ?", s.UserId).First(&v, s.ResId).Error
+	dbctx := c.DB.WithContext(s.Ctx).Where("user_id = ?", s.UserId)
+	for _, p := range preloads {
+		dbctx = dbctx.Preload(p)
+	}
+	err := dbctx.First(&v, s.ResId).Error
 	return &v, err
 }
 

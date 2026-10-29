@@ -19,7 +19,7 @@ func (s *itemService) Update(session *app.Session, existing *models.Item, input 
 }
 
 func (s *itemService) Get(session *app.Session) (*models.Item, error) {
-	return selectResource[models.Item](s.Container, session)
+	return selectResource[models.Item](s.Container, session, "Category")
 }
 
 func (s *itemService) Delete(session *app.Session, record *models.Item) (*models.Item, error) {

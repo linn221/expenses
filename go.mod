@@ -4,6 +4,7 @@ go 1.26.3
 
 require (
 	github.com/google/uuid v1.6.0
+	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
 )
 
@@ -15,6 +16,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/leodido/go-urn v1.5.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	go.uber.org/atomic v1.12.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 )

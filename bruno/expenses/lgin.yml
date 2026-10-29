@@ -1,0 +1,22 @@
+info:
+  name: lgin
+  type: http
+  seq: 31
+
+http:
+  method: POST
+  url: "{{url}}/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "user@example.com",
+        "password": "secret44"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

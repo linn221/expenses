@@ -97,11 +97,28 @@ func (s *expenseService) Delete(session *app.Session, record *models.Expense) (*
 }
 
 func (s *expenseService) Get(session *app.Session) (*models.Expense, error) {
-	return selectResource[models.Expense](s.Container, session)
+	return selectResource[models.Expense](s.Container, session, "Wallet", "Item.Category")
 }
 
-func (s *expenseService) List(session *app.Session, filter *dtos.ExpenseFilter) ([]models.Expense, error) {
+func (s *expenseService) List(session *app.Session, walletId int, filter *dtos.ExpenseFilter) ([]models.Expense, error) {
 	var results []models.Expense
+	dbctx := s.Container.DB.WithContext(session.Ctx).Preload("Wallet").Preload("Item.Category").Where("wallet_id = ?", walletId)
+	if filter.Search != "" {
+		dbctx.Where("note LIKE ?", "%"+filter.Search+"%")
+	}
+	if !filter.MinAmount.IsZero() {
+		dbctx.Where("amount >= ?", filter.MinAmount)
+	}
+	if !filter.MaxAmount.IsZero() {
+		dbctx.Where("amount <= ?", filter.MaxAmount)
+	}
+	if !filter.ExpenseDate.IsZero() {
+		dbctx.Where("expense_date = ?", filter.ExpenseDate.Time)
+	}
+	err := dbctx.Find(&results).Error
+	if err != nil {
+		return nil, err
+	}
 	return results, nil
 }
 

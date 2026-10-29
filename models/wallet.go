@@ -10,7 +10,7 @@ type Wallet struct {
 	Id int `json:"id" gorm:"primaryKey"`
 	HasUserId
 	HasIsActive
-	Name     string
+	Name     string          `json:"name"`
 	Current  decimal.Decimal `json:"current"`
 	Currency string          `json:"currency"`
 }

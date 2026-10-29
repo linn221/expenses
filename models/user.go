@@ -19,9 +19,9 @@ type User struct {
 
 func (u *User) HttpResponse() any {
 	return struct {
-		Id    int `json:"id"`
-		Name  string
-		Email string
+		Id    int    `json:"id"`
+		Name  string `json:"name"`
+		Email string `json:"email"`
 	}{
 		u.Id, u.Name, u.Email,
 	}

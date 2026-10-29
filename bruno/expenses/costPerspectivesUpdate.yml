@@ -1,0 +1,29 @@
+info:
+  name: costPerspectivesUpdate
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{url}}/cost-perspectives/1"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "markup",
+        "value": "20",
+        "type": "percentage",
+        "applications": [
+          {
+            "money_insight_category": ["expense", "income"],
+            "starting_value": "2000"
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

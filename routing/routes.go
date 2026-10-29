@@ -25,6 +25,8 @@ func Serve(c *app.Container) {
 	r := NewNormalRouter()
 	r.NewInstance("POST /login", controllers.LoginController.Login(), rateLimiter)
 	r.NewInstance("POST /register", controllers.LoginController.Register(), rateLimiter)
+	r.NewInstance("GET /incomes/list/{walletId}", controllers.IncomeController.ListByWalletId())
+	r.NewInstance("GET /expenses/list/{walletId}", controllers.ExpenseController.ListByWalletId())
 	r.Register(mux)
 
 	rest := NewRestRouter(middlewares.Auth())
@@ -33,6 +35,7 @@ func Serve(c *app.Container) {
 	rest.NewResource("/items", controllers.ItemController)
 	rest.NewResource("/incomes", controllers.IncomeController)
 	rest.NewResource("/expenses", controllers.ExpenseController)
+	rest.NewResource("/cost-perspectives", controllers.CostPerspectiveController)
 
 	rest.Register(mux)
 

@@ -23,11 +23,11 @@ type Item struct {
 
 func (item *Item) Resource() any {
 	return struct {
-		Id       int
-		Name     string
-		Code     string
-		Price    string
-		Category string
+		Id       int    `json:"id"`
+		Name     string `json:"name"`
+		Code     string `json:"code"`
+		Price    string `json:"price"`
+		Category string `json:"category"`
 	}{item.Id, item.Name, item.Code, item.Price.String(), item.Category.Name}
 }
 

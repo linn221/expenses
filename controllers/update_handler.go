@@ -72,10 +72,9 @@ func UpdateHandler[T any, I models.ModelConverter[T]](c *app.Container, service 
 			return
 		}
 
-		// Convert input to model
+		// Convert input to model. Rules live on the model, not the request DTO.
 		inputModel := (*input).ToModel(&session)
-		// Validate if rules exist
-		err = validateIfRulesExist(c, &session, input, validate.ActionUpdate)
+		err = validateIfRulesExist(c, &session, &inputModel, validate.ActionUpdate)
 		if err != nil {
 			writeError(w, err)
 			return

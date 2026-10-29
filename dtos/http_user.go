@@ -10,3 +10,7 @@ type LoginInfo struct {
 	Email    string
 	Password string
 }
+
+type LoginResponse struct {
+	SessionId string `json:"session_id"`
+}

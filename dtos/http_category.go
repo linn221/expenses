@@ -37,8 +37,8 @@ func (i NewCategory) ToModel(s *app.Session) models.Category {
 }
 
 type CategoryResponse struct {
-	Id   int
-	Name string
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 func RespondCategory(category *models.Category) any {
@@ -50,12 +50,12 @@ func RespondCategory(category *models.Category) any {
 }
 
 type categoryCollectionResponseInstance struct {
-	Id   int
-	Name string
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type CategoryCollectionResponse struct {
-	Results []categoryCollectionResponseInstance
+	Results []categoryCollectionResponseInstance `json:"results"`
 }
 
 func RespondCategoryCollection(categories []models.Category) any {

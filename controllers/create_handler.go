@@ -54,15 +54,12 @@ func CreateHandler[T any, I models.ModelConverter[T]](c *app.Container, service 
 			Ctx:    r.Context(),
 		}
 
-		// Convert input to model
+		// Convert input to model. Rules live on the model, not the request DTO.
 		record := (*input).ToModel(&session)
-		if validateInput, ok := any(input).(validate.Input); ok {
-			err := validate.Validate(c, &session, validateInput, validate.ActionCreate)
-			if err != nil {
-				writeError(w, err)
-				return
-			}
-
+		err = validateIfRulesExist(c, &session, &record, validate.ActionCreate)
+		if err != nil {
+			writeError(w, err)
+			return
 		}
 
 		// Call service

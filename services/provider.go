@@ -5,13 +5,14 @@ import (
 )
 
 type Provider struct {
-	CategoryService  *categoryService
-	LoginService     *loginService
-	SessionIdService *sessionIdService
-	WalletService    *walletService
-	ItemService      *itemService
-	IncomeService    *incomeService
-	ExpenseService   *expenseService
+	CategoryService        *categoryService
+	LoginService           *loginService
+	SessionIdService       *sessionIdService
+	WalletService          *walletService
+	ItemService            *itemService
+	IncomeService          *incomeService
+	ExpenseService         *expenseService
+	CostPerspectiveService *costPerspectiveService
 }
 
 // for accessing of app container without the dependency injection
@@ -20,12 +21,13 @@ var Default *defaultService
 func New(c *app.Container) *Provider {
 	Default = &defaultService{container: c}
 	return &Provider{
-		CategoryService:  &categoryService{Container: c},
-		LoginService:     &loginService{Container: c},
-		SessionIdService: &sessionIdService{Container: c},
-		WalletService:    &walletService{Container: c},
-		ItemService:      &itemService{Container: c},
-		IncomeService:    &incomeService{Container: c},
-		ExpenseService:   &expenseService{Container: c},
+		CategoryService:        &categoryService{Container: c},
+		LoginService:           &loginService{Container: c},
+		SessionIdService:       &sessionIdService{Container: c},
+		WalletService:          &walletService{Container: c},
+		ItemService:            &itemService{Container: c},
+		IncomeService:          &incomeService{Container: c},
+		ExpenseService:         &expenseService{Container: c},
+		CostPerspectiveService: &costPerspectiveService{Container: c},
 	}
 }

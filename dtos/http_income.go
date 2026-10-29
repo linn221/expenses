@@ -70,21 +70,21 @@ func (input NewIncome) ToModel(session *app.Session) models.Income {
 }
 
 type IncomeResource struct {
-	Id         int
-	Title      string
-	Amount     decimal.Decimal
-	IncomeDate time.Time
-	Wallet     WalletResource
+	Id         int             `json:"id"`
+	Title      string          `json:"title"`
+	Amount     decimal.Decimal `json:"amount"`
+	IncomeDate time.Time       `json:"income_date"`
+	Wallet     WalletResource  `json:"wallet"`
 }
 
 type IncomeCollection struct {
-	Incomes []IncomeCollectionInstance
+	Incomes []IncomeCollectionInstance `json:"incomes"`
 }
 
 type IncomeCollectionInstance struct {
-	Id     int
-	Title  string
-	Amount decimal.Decimal
+	Id     int             `json:"id"`
+	Title  string          `json:"title"`
+	Amount decimal.Decimal `json:"amount"`
 }
 
 func RespondIncome(income *models.Income) any {

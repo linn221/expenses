@@ -78,3 +78,26 @@ func (d *MyDate) UnmarshalJSON(b []byte) error {
 func (d *MyDate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.Time.Format("2006-01-02"))
 }
+
+type CostPerspectiveType string
+
+const (
+	CostPerspectiveTypePercentage = "percentage"
+	CostPerspectiveTypeRatio      = "ratio"
+	CostPerspectiveTypeRateHour   = "rate_hour"
+	CostPerspectiveTypeRateDay    = "rate_day"
+	CostPerspectiveTypeRateMonth  = "rate_month"
+)
+
+func (t CostPerspectiveType) Valid() bool {
+	switch t {
+	case CostPerspectiveTypePercentage,
+		CostPerspectiveTypeRatio,
+		CostPerspectiveTypeRateHour,
+		CostPerspectiveTypeRateDay,
+		CostPerspectiveTypeRateMonth:
+		return true
+	default:
+		return false
+	}
+}

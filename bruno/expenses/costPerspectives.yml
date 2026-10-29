@@ -1,0 +1,14 @@
+info:
+  name: costPerspectives
+  type: http
+
+http:
+  method: GET
+  url: "{{url}}/cost-perspectives?name=markup&type=percentage&is_active=1"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

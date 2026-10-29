@@ -80,10 +80,56 @@ func (input NewExpense) ToModel(session *app.Session) models.Expense {
 	return e
 }
 
+// use the same struct for collection response
+type expenseResponse struct {
+	Id          int             `json:"id"`
+	ExpenseDate models.MyDate   `json:"expense_date"`
+	Amount      decimal.Decimal `json:"amount"`
+	Note        string          `json:"note"`
+	Wallet      WalletResource  `json:"wallet"`
+	Item        ItemResource    `json:"item"`
+	Insights    []string        `json:"insights"`
+}
+
+type ItemResource struct {
+	Id       int             `json:"id"`
+	Name     string          `json:"name"`
+	Price    decimal.Decimal `json:"price"`
+	Category string          `json:"category"`
+}
+
+func toExpenseResponse(expense *models.Expense) expenseResponse {
+	return expenseResponse{
+		Id:          expense.Id,
+		ExpenseDate: expense.ExpenseDate,
+		Amount:      expense.ExpenseAmount,
+		Note:        expense.Note,
+		Wallet: WalletResource{
+			Id:   expense.WalletId,
+			Name: expense.Wallet.Name,
+		},
+		Item: ItemResource{
+			Id:       expense.ItemId,
+			Name:     expense.Item.Name,
+			Price:    expense.Item.Price,
+			Category: expense.Item.Category.Name,
+		},
+		Insights: []string{},
+	}
+}
+
 func RespondExpense(expense *models.Expense) any {
-	return nil
+	response := toExpenseResponse(expense)
+	return &response
+}
+
+type expenseCollection struct {
+	Expenses []expenseResponse `json:"expenses"`
 }
 
 func RespondExpenseCollection(results []models.Expense) any {
-	return nil
+	expenses := addToCollection(results, func(expense models.Expense) expenseResponse {
+		return toExpenseResponse(&expense)
+	})
+	return &expenseCollection{Expenses: expenses}
 }
