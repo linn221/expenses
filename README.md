@@ -2,6 +2,8 @@
 
 ### API request documentations are at /bruno. open the /bruno as collection in Bruno Desktop app or VS Code extension.
 
+### API reference: [docs/api.md](docs/api.md)
+
 ### Run demo
 
 ```sh

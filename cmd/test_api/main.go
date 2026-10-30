@@ -7,12 +7,16 @@ import (
 )
 
 func main() {
+	routing.Serve(newContainer())
+}
+
+func newContainer() *app.Container {
 	db := config.ConnectSQLite()
 	cache := config.NewInMemoryCache()
-	routing.Serve(&app.Container{
+	return &app.Container{
 		DB:      db,
 		Cache:   cache,
 		Locker:  cache,
 		Counter: cache,
-	})
+	}
 }

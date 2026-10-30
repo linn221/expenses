@@ -13,6 +13,12 @@ import (
 )
 
 func Serve(c *app.Container) {
+	addr := ":" + config.Cfg.API_PORT()
+	fmt.Printf("api started on port: %s\n", config.Cfg.API_PORT())
+	utils.Must(http.ListenAndServe(addr, Handler(c)))
+}
+
+func Handler(c *app.Container) http.Handler {
 	mux := http.NewServeMux()
 	services := services.New(c)
 	controllers := controllers.New(c, services)
@@ -43,11 +49,5 @@ func Serve(c *app.Container) {
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello world"))
 	})
-	server := http.Server{
-		Handler: sessionMiddleware(middlewares.LoggingMiddleware(middlewares.Recovery(mux))),
-		Addr:    ":" + config.Cfg.API_PORT(),
-	}
-
-	fmt.Printf("api started on port: %s\n", config.Cfg.API_PORT())
-	utils.Must(server.ListenAndServe())
+	return sessionMiddleware(middlewares.LoggingMiddleware(middlewares.Recovery(mux)))
 }
