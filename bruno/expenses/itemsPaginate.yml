@@ -1,0 +1,14 @@
+info:
+  name: itemsPaginate
+  type: http
+
+http:
+  method: GET
+  url: "{{url}}/items/paginate?page=1&order=name&direction=asc"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

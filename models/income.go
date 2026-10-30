@@ -24,7 +24,7 @@ func (existing *Income) UpdateValues(input *Income) map[string]any {
 	return map[string]any{
 		"Title":     input.Title,
 		"Amount":    input.Amount,
-		"IcomeDate": input.IncomeDate,
+		"IncomeDate": input.IncomeDate,
 		// don't let wallet_id change
 	}
 }

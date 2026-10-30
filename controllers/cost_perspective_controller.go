@@ -31,6 +31,10 @@ func (c *costPerspectiveController) List() http.HandlerFunc {
 	return ListWithFilterHandler[models.CostPerspective, dtos.CostPerspectiveFilter](c.Services.CostPerspectiveService)
 }
 
+func (c *costPerspectiveController) Paginate() http.HandlerFunc {
+	return PaginateHandler[models.CostPerspective, dtos.CostPerspectiveFilter](c.Services.CostPerspectiveService)
+}
+
 func (c *costPerspectiveController) ToggleIsActive() http.HandlerFunc {
 	return ToggleIsActiveHandler(c.Services.CostPerspectiveService)
 }

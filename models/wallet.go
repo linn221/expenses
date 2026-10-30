@@ -38,6 +38,9 @@ func (i *Wallet) ValidationRules(vc *validate.ValidationContext) {
 			validate.NoResultRule("expenses", "wallet is used", validate.NewFilter(
 				"wallet_id = ?", s.ResId,
 			)),
+			validate.NoResultRule("incomes", "wallet is used by income", validate.NewFilter(
+				"wallet_id = ?", s.ResId,
+			)),
 		)
 	})
 	vc.OnActiveStatusChange(func(s *app.Session, af validate.AppendFunc) {

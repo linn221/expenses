@@ -71,6 +71,10 @@ func (res *ResourceRoute) applyRoutes(mux *http.ServeMux, middleware Middleware)
 		registerRoute("GET "+res.pattern, use(middleware, listController.List()))
 	}
 
+	if paginateController, ok := res.controller.(PaginateController); ok {
+		registerRoute("GET "+res.pattern+"/paginate", use(middleware, paginateController.Paginate()))
+	}
+
 	if activeToggleController, ok := res.controller.(IsActiveToggleController); ok {
 		registerRoute("POST /is-active"+res.pattern+"/{id}", activeToggleController.ToggleIsActive())
 	}

@@ -31,6 +31,10 @@ func (c *categoryController) List() http.HandlerFunc {
 	return ListWithFilterHandler[models.Category, dtos.CategoryFilter](c.Services.CategoryService)
 }
 
+func (c *categoryController) Paginate() http.HandlerFunc {
+	return PaginateHandler[models.Category, dtos.CategoryFilter](c.Services.CategoryService)
+}
+
 func (c *categoryController) ToggleIsActive() http.HandlerFunc {
 	return ToggleIsActiveHandler(c.Services.CategoryService)
 }

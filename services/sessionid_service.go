@@ -2,10 +2,10 @@ package services
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/linn221/expenses/app"
+	"github.com/linn221/expenses/config"
 )
 
 type sessionIdService struct {
@@ -16,7 +16,7 @@ func (s *sessionIdService) NewSessionId(userId int) (string, error) {
 	uuid := uuid.NewString()
 	key := fmt.Sprintf("Session:%s", uuid)
 	value := fmt.Sprint(userId)
-	err := s.Cache.SetValue(key, value, time.Hour*24*7) // seven days
+	err := s.Cache.SetValue(key, value, config.Cfg.SessionTTL())
 	if err != nil {
 		return "", err
 	}

@@ -4,6 +4,7 @@ import (
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
+	"gorm.io/gorm"
 )
 
 type itemService struct {
@@ -29,23 +30,26 @@ func (s *itemService) Delete(session *app.Session, record *models.Item) (*models
 	return deleteModel(s.Container, session, record)
 }
 
-func (s *itemService) List(session *app.Session, filter *dtos.ItemFilter) ([]models.Item, error) {
+func (s *itemService) ApplyFilters(session *app.Session, filter *dtos.ItemFilter) *gorm.DB {
 	db := s.Container.DB.WithContext(session.Ctx).Model(&models.Item{}).Preload("Category").Where("user_id = ?", session.UserId)
-
-	if filter != nil {
-		if filter.CategoryId > 0 {
-			db.Where("category_id = ?", filter.CategoryId)
-		}
-		if filter.Search != "" {
-			db.Where("name LIKE ? OR code LIKE ?",
-				"%"+filter.Search+"%",
-				"%"+filter.Search+"%",
-			)
-		}
+	if filter == nil {
+		return db
 	}
+	if filter.CategoryId > 0 {
+		db = db.Where("category_id = ?", filter.CategoryId)
+	}
+	if filter.Search != "" {
+		db = db.Where("name LIKE ? OR code LIKE ?",
+			"%"+filter.Search+"%",
+			"%"+filter.Search+"%",
+		)
+	}
+	return db
+}
 
+func (s *itemService) List(session *app.Session, filter *dtos.ItemFilter) ([]models.Item, error) {
 	var results []models.Item
-	err := db.Find(&results).Error
+	err := s.ApplyFilters(session, filter).Find(&results).Error
 	return results, err
 }
 

@@ -59,20 +59,26 @@ func (s *costPerspectiveService) Get(session *app.Session) (*models.CostPerspect
 	return selectResource[models.CostPerspective](s.Container, session, "Applications")
 }
 
-func (s *costPerspectiveService) List(session *app.Session, filter *dtos.CostPerspectiveFilter) ([]models.CostPerspective, error) {
+func (s *costPerspectiveService) ApplyFilters(session *app.Session, filter *dtos.CostPerspectiveFilter) *gorm.DB {
 	db := s.Container.DB.WithContext(session.Ctx).Model(&models.CostPerspective{}).Preload("Applications").Where("user_id = ?", session.UserId)
+	if filter == nil {
+		return db
+	}
 	if filter.Name != "" {
-		db.Where("name LIKE ?", "%"+filter.Name+"%")
+		db = db.Where("name LIKE ?", "%"+filter.Name+"%")
 	}
 	if filter.Type != "" {
-		db.Where("`type` = ?", filter.Type)
+		db = db.Where("`type` = ?", filter.Type)
 	}
 	if filter.IsActive != nil {
-		db.Where("is_active = ?", filter.IsActive)
+		db = db.Where("is_active = ?", filter.IsActive)
 	}
+	return db
+}
 
+func (s *costPerspectiveService) List(session *app.Session, filter *dtos.CostPerspectiveFilter) ([]models.CostPerspective, error) {
 	var results []models.CostPerspective
-	err := db.Find(&results).Error
+	err := s.ApplyFilters(session, filter).Find(&results).Error
 	return results, err
 }
 

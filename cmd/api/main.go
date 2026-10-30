@@ -13,9 +13,10 @@ func main() {
 	// cache := config.NewInMemoryCache()
 	cache := config.ConnectRedis(context.Background())
 	a := app.Container{
-		DB:     db,
-		Cache:  cache,
-		Locker: cache,
+		DB:      db,
+		Cache:   cache,
+		Locker:  cache,
+		Counter: cache,
 	}
 	routing.Serve(&a)
 }

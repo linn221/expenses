@@ -1,0 +1,14 @@
+info:
+  name: costPerspectivesPaginate
+  type: http
+
+http:
+  method: GET
+  url: "{{url}}/cost-perspectives/paginate?name=markup&type=percentage&is_active=1&page=1&order=name&direction=asc"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -50,7 +49,7 @@ func initLog() logger.Interface {
 	newLogger := logger.New(log.New(io.MultiWriter(f), "\r\n", log.LstdFlags), logger.Config{
 		Colorful:      true,
 		LogLevel:      logger.Info,
-		SlowThreshold: time.Second,
+		SlowThreshold: Cfg.SlowQueryThreshold(),
 	})
 	return newLogger
 }

@@ -12,7 +12,7 @@ import (
 
 type NewExpense struct {
 	ExpenseDate models.MyDate   `json:"expense_date" validate:"required"`
-	Amount      decimal.Decimal `json:"amount" validate:"required"`
+	Amount      decimal.Decimal `json:"amount"`
 	Note        string          `json:"note" validate:"required,min=3,max=255"`
 	WalletId    int
 
@@ -23,6 +23,7 @@ type NewExpense struct {
 }
 
 type ExpenseFilter struct {
+	WalletId    int
 	ExpenseDate models.MyDate
 	Search      string
 	MaxAmount   decimal.Decimal
@@ -30,6 +31,12 @@ type ExpenseFilter struct {
 }
 
 func (e ExpenseFilter) Parse(r *http.Request) (*ExpenseFilter, error) {
+	walletID, err := walletIDFromPath(r)
+	if err != nil {
+		return nil, err
+	}
+	e.WalletId = walletID
+
 	q := r.URL.Query()
 
 	if search := q.Get("search"); search != "" {

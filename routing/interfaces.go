@@ -17,6 +17,10 @@ type ListController interface {
 	List() http.HandlerFunc
 }
 
+type PaginateController interface {
+	Paginate() http.HandlerFunc
+}
+
 type IsActiveToggleController interface {
 	ToggleIsActive() http.HandlerFunc
 }

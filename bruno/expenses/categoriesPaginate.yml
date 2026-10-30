@@ -1,0 +1,14 @@
+info:
+  name: categoriesPaginate
+  type: http
+
+http:
+  method: GET
+  url: "{{url}}/categories/paginate?page=1&order=name&direction=asc"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

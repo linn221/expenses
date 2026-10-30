@@ -3,7 +3,6 @@ package routing
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/config"
@@ -18,7 +17,7 @@ func Serve(c *app.Container) {
 	services := services.New(c)
 	controllers := controllers.New(c, services)
 	sessionMiddleware := middlewares.Session(c.Cache)
-	var rateLimiter = middlewares.NewRateLimiter(c.Counter, time.Minute*2, 50, "login", func(r *http.Request) (string, error) {
+	var rateLimiter = middlewares.NewRateLimiter(c.Counter, config.Cfg.RateLimitWindow(), config.Cfg.RateLimit(), "login", func(r *http.Request) (string, error) {
 		return utils.GetClientIP(r), nil
 	})
 
@@ -26,7 +25,9 @@ func Serve(c *app.Container) {
 	r.NewInstance("POST /login", controllers.LoginController.Login(), rateLimiter)
 	r.NewInstance("POST /register", controllers.LoginController.Register(), rateLimiter)
 	r.NewInstance("GET /incomes/list/{walletId}", controllers.IncomeController.ListByWalletId())
+	r.NewInstance("GET /incomes/paginate/{walletId}", controllers.IncomeController.PaginateByWalletId())
 	r.NewInstance("GET /expenses/list/{walletId}", controllers.ExpenseController.ListByWalletId())
+	r.NewInstance("GET /expenses/paginate/{walletId}", controllers.ExpenseController.PaginateByWalletId())
 	r.Register(mux)
 
 	rest := NewRestRouter(middlewares.Auth())

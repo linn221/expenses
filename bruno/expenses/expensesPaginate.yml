@@ -1,0 +1,14 @@
+info:
+  name: expensesPaginate
+  type: http
+
+http:
+  method: GET
+  url: "{{url}}/expenses/paginate/1?search=coffee&expense_date=2026-10-28&min_amount=0&max_amount=10000&page=1&order=expense_date&direction=desc"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

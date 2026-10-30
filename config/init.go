@@ -23,6 +23,13 @@ func init() {
 	}
 	_BASE_DIRECTORY = dir
 	environmentPath := filepath.Join(dir, ".env")
+	if _, statErr := os.Stat(environmentPath); statErr != nil {
+		cwd, cwdErr := os.Getwd()
+		if cwdErr != nil {
+			log.Fatal(statErr)
+		}
+		environmentPath = filepath.Join(cwd, ".env")
+	}
 	err = godotenv.Load(environmentPath)
 	if err != nil {
 		log.Fatal(err)
@@ -33,9 +40,6 @@ func init() {
 	// 	panic("set UPLOAD_DIR in .env")
 	// }
 	_PORT = os.Getenv("API_PORT")
-	if _PORT == "" {
-		_PORT = "8080"
-	}
 	var devMode bool
 	if _devMode := os.Getenv("DEV"); _devMode == "true" {
 		devMode = true

@@ -4,6 +4,7 @@ import (
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
+	"gorm.io/gorm"
 )
 
 // when a resource reaches a service, it is assumed by default that all validations have been passed
@@ -29,17 +30,23 @@ func (s *categoryService) Get(session *app.Session) (*models.Category, error) {
 	return selectResource[models.Category](s.Container, session)
 }
 
-func (s *categoryService) List(session *app.Session, filter *dtos.CategoryFilter) ([]models.Category, error) {
+func (s *categoryService) ApplyFilters(session *app.Session, filter *dtos.CategoryFilter) *gorm.DB {
 	db := s.Container.DB.WithContext(session.Ctx).Model(&models.Category{}).Where("user_id = ?", session.UserId)
+	if filter == nil {
+		return db
+	}
 	if filter.Name != "" {
-		db.Where("name LIKE ?", "%"+filter.Name+"%")
+		db = db.Where("name LIKE ?", "%"+filter.Name+"%")
 	}
 	if filter.IsActive != nil {
-		db.Where("is_active = ?", filter.IsActive)
+		db = db.Where("is_active = ?", filter.IsActive)
 	}
+	return db
+}
 
+func (s *categoryService) List(session *app.Session, filter *dtos.CategoryFilter) ([]models.Category, error) {
 	var results []models.Category
-	err := db.Find(&results).Error
+	err := s.ApplyFilters(session, filter).Find(&results).Error
 	return results, err
 }
 

@@ -18,7 +18,7 @@ request:
   auth:
     type: apikey
     key: session_id
-    value: dedba2e9-d116-4340-a0ae-8dcc9020cae3
+    value: db71a2d9-17ad-41b7-9f20-daf89ce8b6ac
     placement: header
   variables:
     - name: url

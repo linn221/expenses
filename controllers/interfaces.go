@@ -5,6 +5,7 @@ import (
 
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/dtos"
+	"gorm.io/gorm"
 )
 
 /*
@@ -16,6 +17,11 @@ type Getter[T any] interface {
 }
 type Lister[T, F any] interface {
 	List(*app.Session, F) ([]T, error)
+}
+
+// ApplyFilters returns the model query with list conditions already applied.
+type ApplyFilters[F any] interface {
+	ApplyFilters(*app.Session, F) *gorm.DB
 }
 type Creater[T any] interface {
 	Create(*app.Session, T) (*T, error)

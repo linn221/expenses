@@ -18,6 +18,7 @@ type NewIncome struct {
 }
 
 type IncomeFilter struct {
+	WalletId   int
 	IncomeDate models.MyDate
 	Search     string
 	MaxAmount  decimal.Decimal
@@ -25,6 +26,12 @@ type IncomeFilter struct {
 }
 
 func (f IncomeFilter) Parse(r *http.Request) (*IncomeFilter, error) {
+	walletID, err := walletIDFromPath(r)
+	if err != nil {
+		return nil, err
+	}
+	f.WalletId = walletID
+
 	q := r.URL.Query()
 
 	if search := q.Get("search"); search != "" {

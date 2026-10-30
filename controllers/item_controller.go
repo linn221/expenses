@@ -31,6 +31,10 @@ func (c *itemController) List() http.HandlerFunc {
 	return ListWithFilterHandler(c.Services.ItemService)
 }
 
+func (c *itemController) Paginate() http.HandlerFunc {
+	return PaginateHandler[models.Item, dtos.ItemFilter](c.Services.ItemService)
+}
+
 func (c *itemController) ToggleIsActive() http.HandlerFunc {
 	return ToggleIsActiveHandler(c.Services.ItemService)
 }

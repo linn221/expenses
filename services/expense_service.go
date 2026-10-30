@@ -5,6 +5,7 @@ import (
 	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 	"github.com/linn221/expenses/utils"
+	"gorm.io/gorm"
 )
 
 type expenseService struct {
@@ -31,7 +32,7 @@ func (s *expenseService) Create(session *app.Session, input models.Expense) (*mo
 
 	updateItemPrice := app.RetrieveFromSession[bool](session, app.SessionValueUpdateItemPrice)
 	if updateItemPrice {
-		err := session.Tx.Exec(`UPDATE items SET item_price = ? WHERE id = ?`, input.ItemPrice, input.ItemId).Error
+		err := session.Tx.Exec(`UPDATE items SET price = ? WHERE id = ?`, input.ItemPrice, input.ItemId).Error
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +56,8 @@ func (s *expenseService) Update(session *app.Session, existing *models.Expense, 
 		return nil, err
 	}
 	delta := input.ExpenseAmount.Sub(existing.ExpenseAmount).Neg()
-	if wallet.Current.LessThan(delta.Abs()) {
+	// delta is what the wallet balance changes by: negative when the expense grows
+	if delta.IsNegative() && wallet.Current.LessThan(delta.Abs()) {
 		return nil, utils.NewBadRequest("expense amount must not be greater than wallet's balance")
 	}
 
@@ -65,7 +67,7 @@ func (s *expenseService) Update(session *app.Session, existing *models.Expense, 
 
 	updateItemPrice := app.RetrieveFromSession[bool](session, app.SessionValueUpdateItemPrice)
 	if updateItemPrice {
-		err := session.Tx.Exec(`UPDATE items SET item_price = ? WHERE id = ?`, input.ItemPrice, input.ItemId).Error
+		err := session.Tx.Exec(`UPDATE items SET price = ? WHERE id = ?`, input.ItemPrice, input.ItemId).Error
 		if err != nil {
 			return nil, err
 		}
@@ -100,22 +102,30 @@ func (s *expenseService) Get(session *app.Session) (*models.Expense, error) {
 	return selectResource[models.Expense](s.Container, session, "Wallet", "Item.Category")
 }
 
-func (s *expenseService) List(session *app.Session, walletId int, filter *dtos.ExpenseFilter) ([]models.Expense, error) {
-	var results []models.Expense
-	dbctx := s.Container.DB.WithContext(session.Ctx).Preload("Wallet").Preload("Item.Category").Where("wallet_id = ?", walletId)
+func (s *expenseService) ApplyFilters(session *app.Session, filter *dtos.ExpenseFilter) *gorm.DB {
+	db := s.Container.DB.WithContext(session.Ctx).Model(&models.Expense{}).Preload("Wallet").Preload("Item.Category")
+	if filter == nil {
+		return db
+	}
+	db = db.Where("wallet_id = ?", filter.WalletId)
 	if filter.Search != "" {
-		dbctx.Where("note LIKE ?", "%"+filter.Search+"%")
+		db = db.Where("note LIKE ?", "%"+filter.Search+"%")
 	}
 	if !filter.MinAmount.IsZero() {
-		dbctx.Where("amount >= ?", filter.MinAmount)
+		db = db.Where("expense_amount >= ?", filter.MinAmount)
 	}
 	if !filter.MaxAmount.IsZero() {
-		dbctx.Where("amount <= ?", filter.MaxAmount)
+		db = db.Where("expense_amount <= ?", filter.MaxAmount)
 	}
 	if !filter.ExpenseDate.IsZero() {
-		dbctx.Where("expense_date = ?", filter.ExpenseDate.Time)
+		db = db.Where("expense_date = ?", filter.ExpenseDate.Time)
 	}
-	err := dbctx.Find(&results).Error
+	return db
+}
+
+func (s *expenseService) List(session *app.Session, filter *dtos.ExpenseFilter) ([]models.Expense, error) {
+	var results []models.Expense
+	err := s.ApplyFilters(session, filter).Find(&results).Error
 	if err != nil {
 		return nil, err
 	}
