@@ -10,7 +10,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/models"
-	"github.com/linn221/expenses/myctx"
 	"github.com/linn221/expenses/utils"
 	"github.com/linn221/expenses/validate"
 )
@@ -44,7 +43,7 @@ func UpdateHandler[T any, I models.ModelConverter[T]](c *app.Container, service 
 		}
 
 		// Construct user session
-		userId, err := myctx.GetUserId(r.Context())
+		userId, err := app.GetUserId(r.Context())
 		if err != nil {
 			writeError(w, err)
 			return

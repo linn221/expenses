@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/linn221/expenses/app"
-	"github.com/linn221/expenses/myctx"
 	"github.com/linn221/expenses/utils"
 )
 
@@ -13,7 +12,7 @@ func ListWithFilterHandler[T any, F QueryParser[F]](service Lister[T, *F]) http.
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// Construct user session
-		userId, err := myctx.GetUserId(r.Context())
+		userId, err := app.GetUserId(r.Context())
 		if err != nil {
 			writeError(w, err)
 			return

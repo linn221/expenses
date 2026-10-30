@@ -7,6 +7,13 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/linn221/expenses/utils"
+)
+
+var (
+	_ utils.CacheService = (*inMemoryCache)(nil)
+	_ utils.Counter      = (*inMemoryCache)(nil)
 )
 
 // AI generated one for quick demo purpose

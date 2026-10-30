@@ -1,4 +1,4 @@
-package controllers
+package controllers_test
 
 import (
 	"bytes"
@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/linn221/expenses/app"
+	"github.com/linn221/expenses/controllers"
 	"github.com/linn221/expenses/models"
-	"github.com/linn221/expenses/myctx"
 	"github.com/linn221/expenses/services"
 	"github.com/shopspring/decimal"
 	"gorm.io/driver/sqlite"
@@ -44,7 +44,7 @@ func TestCreateIncomeRespondsCreated(t *testing.T) {
 
 	container := &app.Container{DB: db}
 	provider := services.New(container)
-	handler := (&incomeController{myController: myController{Container: container, Services: provider}}).Create()
+	income := controllers.New(container, provider).IncomeController
 
 	body := bytes.NewBufferString(`{
 		"title": "salary",
@@ -53,10 +53,10 @@ func TestCreateIncomeRespondsCreated(t *testing.T) {
 		"wallet_id": ` + strconv.Itoa(wallet.Id) + `
 	}`)
 	req := httptest.NewRequest(http.MethodPost, "/incomes", body)
-	req = req.WithContext(myctx.SetUserId(context.Background(), user.Id))
+	req = req.WithContext(app.SetUserId(context.Background(), user.Id))
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	income.Create().ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusCreated {
 		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
@@ -88,9 +88,9 @@ func TestCreateIncomeRespondsCreated(t *testing.T) {
 
 	getReq := httptest.NewRequest(http.MethodGet, "/incomes/"+strconv.Itoa(resp.Id), nil)
 	getReq.SetPathValue("id", strconv.Itoa(resp.Id))
-	getReq = getReq.WithContext(myctx.SetUserId(context.Background(), user.Id))
+	getReq = getReq.WithContext(app.SetUserId(context.Background(), user.Id))
 	getRec := httptest.NewRecorder()
-	(&incomeController{myController: myController{Container: container, Services: provider}}).Get().ServeHTTP(getRec, getReq)
+	income.Get().ServeHTTP(getRec, getReq)
 	if getRec.Code != http.StatusOK {
 		t.Fatalf("get status = %d, body = %s", getRec.Code, getRec.Body.String())
 	}

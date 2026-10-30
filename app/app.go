@@ -6,7 +6,8 @@ import (
 )
 
 type Container struct {
-	DB     *gorm.DB
-	Cache  utils.CacheService
-	Locker utils.Locker
+	DB      *gorm.DB
+	Cache   utils.CacheService
+	Locker  utils.Locker
+	Counter utils.Counter
 }

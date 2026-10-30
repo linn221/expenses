@@ -8,7 +8,6 @@ import (
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
-	"github.com/linn221/expenses/myctx"
 )
 
 type incomeController struct {
@@ -38,7 +37,7 @@ func (c *incomeController) List() http.HandlerFunc {
 func (c *incomeController) ListByWalletId() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Construct user session
-		userId, err := myctx.GetUserId(r.Context())
+		userId, err := app.GetUserId(r.Context())
 		if err != nil {
 			writeError(w, err)
 			return

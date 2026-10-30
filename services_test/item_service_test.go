@@ -1,4 +1,4 @@
-package services
+package services_test
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
+	"github.com/linn221/expenses/services"
 	"github.com/shopspring/decimal"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -42,7 +43,7 @@ func TestUpdateItemCategoryId(t *testing.T) {
 	}
 
 	session := &app.Session{UserId: 1, ResId: item.Id, Ctx: context.Background()}
-	service := &itemService{Container: &app.Container{DB: db}}
+	service := services.New(&app.Container{DB: db}).ItemService
 
 	existing, err := service.Get(session)
 	if err != nil {
@@ -94,7 +95,7 @@ func TestUpdateItemCode(t *testing.T) {
 	}
 
 	session := &app.Session{UserId: 1, ResId: item.Id, Ctx: context.Background()}
-	service := &itemService{Container: &app.Container{DB: db}}
+	service := services.New(&app.Container{DB: db}).ItemService
 	existing, err := service.Get(session)
 	if err != nil {
 		t.Fatal(err)

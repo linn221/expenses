@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/linn221/expenses/myctx"
+	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/utils"
 )
 
@@ -26,7 +26,7 @@ func Session(sessionStore utils.CacheService) func(http.Handler) http.Handler {
 						return
 					}
 					ctx := r.Context()
-					ctx = myctx.SetUserId(ctx, userId)
+					ctx = app.SetUserId(ctx, userId)
 					r = r.WithContext(ctx)
 				}
 			}
@@ -38,7 +38,7 @@ func Session(sessionStore utils.CacheService) func(http.Handler) http.Handler {
 					return
 				}
 				ctx := r.Context()
-				ctx = myctx.SetUserId(ctx, userId)
+				ctx = app.SetUserId(ctx, userId)
 				r = r.WithContext(ctx)
 			}
 			next.ServeHTTP(w, r)

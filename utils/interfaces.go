@@ -6,6 +6,12 @@ type Locker interface {
 	Lock(string) (unLock func() error, err error)
 }
 
+type Counter interface {
+	Exists(key string) (int64, error)
+	Incr(key string) (int64, error)
+	SetValue(key string, value string, exp time.Duration) error
+}
+
 type CacheService interface {
 	GetObject(key string, dest any) (bool, error)
 	GetValue(key string) (string, bool, error)

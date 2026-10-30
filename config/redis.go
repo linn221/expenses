@@ -7,7 +7,13 @@ import (
 	"time"
 
 	"github.com/bsm/redislock"
+	"github.com/linn221/expenses/utils"
 	"github.com/redis/go-redis/v9"
+)
+
+var (
+	_ utils.CacheService = (*RedisService)(nil)
+	_ utils.Counter      = (*RedisService)(nil)
 )
 
 type RedisService struct {

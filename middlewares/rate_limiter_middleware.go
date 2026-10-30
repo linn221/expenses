@@ -9,7 +9,7 @@ import (
 )
 
 // using closure for dependencies
-func NewRateLimiter(counter utils.CacheService, window time.Duration, limit int64, label string, getLimitBy func(r *http.Request) (string, error)) func(http.HandlerFunc) http.HandlerFunc {
+func NewRateLimiter(counter utils.Counter, window time.Duration, limit int64, label string, getLimitBy func(r *http.Request) (string, error)) func(http.HandlerFunc) http.HandlerFunc {
 	// Get the IP address or user identifier from the request.
 	if label == "" {
 		panic("label must not be an empty string")

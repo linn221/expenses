@@ -1,17 +1,18 @@
-package dtos
+package dtos_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/models"
 	"github.com/shopspring/decimal"
 )
 
 func TestDecimalAmountsDoNotPanic(t *testing.T) {
 	v := validator.New()
-	income := NewIncome{
+	income := dtos.NewIncome{
 		Title:      "salary",
 		Amount:     decimal.NewFromInt(500000),
 		IncomeDate: models.MyDate{Time: time.Date(2026, 10, 28, 0, 0, 0, 0, time.UTC)},
@@ -21,7 +22,7 @@ func TestDecimalAmountsDoNotPanic(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expense := NewExpense{
+	expense := dtos.NewExpense{
 		ExpenseDate: models.MyDate{Time: time.Date(2026, 10, 28, 0, 0, 0, 0, time.UTC)},
 		Amount:      decimal.NewFromInt(4000),
 		Note:        "latte",

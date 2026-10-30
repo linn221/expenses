@@ -18,7 +18,7 @@ func Serve(c *app.Container) {
 	services := services.New(c)
 	controllers := controllers.New(c, services)
 	sessionMiddleware := middlewares.Session(c.Cache)
-	var rateLimiter = middlewares.NewRateLimiter(c.Cache, time.Minute*2, 50, "login", func(r *http.Request) (string, error) {
+	var rateLimiter = middlewares.NewRateLimiter(c.Counter, time.Minute*2, 50, "login", func(r *http.Request) (string, error) {
 		return utils.GetClientIP(r), nil
 	})
 
