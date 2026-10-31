@@ -49,5 +49,5 @@ func Handler(c *app.Container) http.Handler {
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello world"))
 	})
-	return sessionMiddleware(middlewares.LoggingMiddleware(middlewares.Recovery(mux)))
+	return middlewares.CORS(sessionMiddleware(middlewares.LoggingMiddleware(middlewares.Recovery(mux))))
 }

@@ -11,3 +11,9 @@ git clone <repo>
 cd demo
 go run .
 ```
+
+### Run frontend
+```sh
+cd client
+live-server
+```

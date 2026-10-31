@@ -13,7 +13,7 @@ import (
 type NewExpense struct {
 	ExpenseDate models.MyDate   `json:"expense_date" validate:"required"`
 	Amount      decimal.Decimal `json:"amount"`
-	Note        string          `json:"note" validate:"required,min=3,max=255"`
+	Note        string          `json:"note" validate:"omitempty,min=3,max=255"`
 	WalletId    int
 
 	ItemId          int             `json:"item_id" validate:"required,gte=1"`

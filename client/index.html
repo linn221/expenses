@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expenses</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div id="app" class="container py-4" style="max-width: 880px">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <h1 class="h3 mb-0">Expenses</h1>
+      <input v-model="base" class="form-control form-control-sm ms-auto" style="max-width: 280px" placeholder="API base URL" @change="saveBase">
+      <button v-if="session" class="btn btn-sm btn-outline-secondary" @click="logout">Log out</button>
+    </div>
+
+    <div v-if="messages.length" class="alert alert-danger">
+      <ul class="mb-0">
+        <li v-for="(message, i) in messages" :key="i">{{ message }}</li>
+      </ul>
+    </div>
+    <div v-if="notice" class="alert alert-success py-2">{{ notice }}</div>
+
+    <div v-if="!session" class="card">
+      <div class="card-body">
+        <ul class="nav nav-tabs mb-3">
+          <li class="nav-item"><button class="nav-link" :class="{active: authTab==='login'}" @click="authTab='login'">Log in</button></li>
+          <li class="nav-item"><button class="nav-link" :class="{active: authTab==='register'}" @click="authTab='register'">Register</button></li>
+        </ul>
+        <form v-if="authTab==='login'" @submit.prevent="login" class="vstack gap-2">
+          <input v-model="auth.email" type="email" class="form-control" placeholder="Email" required>
+          <input v-model="auth.password" type="password" class="form-control" placeholder="Password" required>
+          <button class="btn btn-primary">Log in</button>
+        </form>
+        <form v-else @submit.prevent="register" class="vstack gap-2">
+          <input v-model="auth.name" class="form-control" placeholder="Name" required>
+          <input v-model="auth.email" type="email" class="form-control" placeholder="Email" required>
+          <input v-model="auth.password" type="password" class="form-control" placeholder="Password" required>
+          <button class="btn btn-primary">Create account</button>
+        </form>
+      </div>
+    </div>
+
+    <div v-else>
+      <ul class="nav nav-pills mb-3 flex-wrap gap-1">
+        <li v-for="name in tabs" :key="name" class="nav-item">
+          <button class="nav-link" :class="{active: tab===name}" @click="open(name)">{{ name }}</button>
+        </li>
+      </ul>
+
+      <div v-if="tab==='categories'" class="card"><div class="card-body">
+        <form class="row g-2 mb-3" @submit.prevent="saveCategory">
+          <div class="col"><input v-model="category.name" class="form-control" placeholder="Name" required></div>
+          <div class="col-auto"><button class="btn btn-primary">{{ category.id ? 'Update' : 'Add' }}</button></div>
+          <div class="col-auto" v-if="category.id"><button type="button" class="btn btn-outline-secondary" @click="category={name:''}">Cancel</button></div>
+        </form>
+        <div v-for="row in categories" :key="row.id" class="d-flex gap-2 align-items-center border-bottom py-2">
+          <span class="me-auto">{{ row.name }}</span>
+          <button class="btn btn-sm btn-outline-secondary" @click="category={id:row.id, name:row.name}">Edit</button>
+          <button class="btn btn-sm btn-outline-secondary" @click="toggle('categories', row.id, false)">Off</button>
+          <button class="btn btn-sm btn-outline-secondary" @click="toggle('categories', row.id, true)">On</button>
+          <button class="btn btn-sm btn-outline-danger" @click="remove('categories', row.id)">Delete</button>
+        </div>
+      </div></div>
+
+      <div v-if="tab==='wallets'" class="card"><div class="card-body">
+        <form class="row g-2 mb-3" @submit.prevent="saveWallet">
+          <div class="col"><input v-model="wallet.name" class="form-control" placeholder="Name" required></div>
+          <div class="col"><input v-model="wallet.currency" class="form-control" placeholder="Currency" required></div>
+          <div class="col-auto"><button class="btn btn-primary">{{ wallet.id ? 'Update' : 'Add' }}</button></div>
+          <div class="col-auto" v-if="wallet.id"><button type="button" class="btn btn-outline-secondary" @click="wallet={name:'',currency:''}">Cancel</button></div>
+        </form>
+        <div v-for="row in wallets" :key="row.id" class="d-flex gap-2 align-items-center border-bottom py-2">
+          <span class="me-auto">{{ row.name }} · {{ row.currency }} · {{ row.current }}</span>
+          <button class="btn btn-sm btn-outline-secondary" @click="wallet={id:row.id, name:row.name, currency:row.currency}">Edit</button>
+          <button class="btn btn-sm btn-outline-secondary" @click="toggle('wallets', row.id, false)">Off</button>
+          <button class="btn btn-sm btn-outline-secondary" @click="toggle('wallets', row.id, true)">On</button>
+          <button class="btn btn-sm btn-outline-danger" @click="remove('wallets', row.id)">Delete</button>
+        </div>
+      </div></div>
+
+      <div v-if="tab==='items'" class="card"><div class="card-body">
+        <form class="row g-2 mb-3" @submit.prevent="saveItem">
+          <div class="col-12 col-md"><input v-model="item.name" class="form-control" placeholder="Name" required></div>
+          <div class="col-6 col-md"><input v-model="item.code" class="form-control" placeholder="Code"></div>
+          <div class="col-6 col-md"><input v-model="item.price" class="form-control" placeholder="Price" required></div>
+          <div class="col-12 col-md">
+            <select v-model="item.category_id" class="form-select" required>
+              <option value="">Category</option>
+              <option v-for="row in categories" :key="row.id" :value="row.id">{{ row.name }}</option>
+            </select>
+          </div>
+          <div class="col-auto"><button class="btn btn-primary">{{ item.id ? 'Update' : 'Add' }}</button></div>
+          <div class="col-auto" v-if="item.id"><button type="button" class="btn btn-outline-secondary" @click="blankItem">Cancel</button></div>
+        </form>
+        <div v-for="row in items" :key="row.id" class="d-flex gap-2 align-items-center border-bottom py-2">
+          <span class="me-auto">{{ row.name }} · {{ row.code }} · {{ row.price }} · {{ row.category }}</span>
+          <button class="btn btn-sm btn-outline-secondary" @click="editItem(row)">Edit</button>
+          <button class="btn btn-sm btn-outline-secondary" @click="toggle('items', row.id, false)">Off</button>
+          <button class="btn btn-sm btn-outline-secondary" @click="toggle('items', row.id, true)">On</button>
+          <button class="btn btn-sm btn-outline-danger" @click="remove('items', row.id)">Delete</button>
+        </div>
+      </div></div>
+
+      <div v-if="tab==='incomes'" class="card"><div class="card-body">
+        <form class="row g-2 mb-3" @submit.prevent="saveIncome">
+          <div class="col-12 col-md">
+            <select v-model="income.wallet_id" class="form-select" required @change="rememberWallet(income.wallet_id); loadIncomes().catch(fail)">
+              <option value="">Wallet</option>
+              <option v-for="row in wallets" :key="row.id" :value="row.id">{{ row.name }}</option>
+            </select>
+          </div>
+          <div class="col"><input v-model="income.title" class="form-control" placeholder="Title" required></div>
+          <div class="col"><input v-model="income.amount" class="form-control" placeholder="Amount" required></div>
+          <div class="col"><input v-model="income.income_date" type="date" class="form-control" required></div>
+          <div class="col-auto"><button class="btn btn-primary">{{ income.id ? 'Update' : 'Add' }}</button></div>
+          <div class="col-auto" v-if="income.id"><button type="button" class="btn btn-outline-secondary" @click="blankIncome">Cancel</button></div>
+        </form>
+        <div v-for="row in incomes" :key="row.id" class="d-flex gap-2 align-items-center border-bottom py-2">
+          <span class="me-auto">{{ row.title }} · {{ row.amount }}</span>
+          <button class="btn btn-sm btn-outline-secondary" @click="editIncome(row.id)">Edit</button>
+          <button class="btn btn-sm btn-outline-danger" @click="remove('incomes', row.id, loadIncomes)">Delete</button>
+        </div>
+      </div></div>
+
+      <div v-if="tab==='expenses'" class="card"><div class="card-body">
+        <form class="row g-2 mb-3" @submit.prevent="saveExpense">
+          <div class="col-md-6">
+            <select v-model="expense.wallet_id" class="form-select" required @change="rememberWallet(expense.wallet_id); loadExpenses().catch(fail)">
+              <option value="">Wallet</option>
+              <option v-for="row in wallets" :key="row.id" :value="row.id">{{ row.name }} ({{ row.current }})</option>
+            </select>
+          </div>
+          <div class="col-md-6 position-relative">
+            <input v-model="itemQuery" class="form-control" placeholder="Search items" autocomplete="off"
+              @input="onItemInput" @focus="itemMenu = true"
+              @keydown.down.prevent="moveItem(1)" @keydown.up.prevent="moveItem(-1)"
+              @keydown.enter="onItemEnter" @blur="itemMenu = false">
+            <div v-if="itemMenu && itemMatches.length" class="list-group position-absolute w-100 shadow-sm" style="z-index: 5">
+              <button type="button" class="list-group-item list-group-item-action py-1"
+                v-for="(row, i) in itemMatches" :key="row.id"
+                :class="{active: i === itemIndex}"
+                @mousedown.prevent="chooseItem(row)">
+                {{ row.name }} · {{ row.code }} · {{ row.price }}
+              </button>
+            </div>
+          </div>
+          <div class="col"><input v-model="expense.expense_date" type="date" class="form-control" required></div>
+          <div class="col"><input v-model.number="expense.qty" type="number" min="1" class="form-control" placeholder="Qty" required></div>
+          <div class="col"><input v-model="expense.item_price" class="form-control" placeholder="Item price" required></div>
+          <div class="col-12 form-check ms-2">
+            <input v-model="expense.update_price" class="form-check-input" type="checkbox" id="updatePrice">
+            <label class="form-check-label" for="updatePrice">Update the item's price</label>
+          </div>
+          <div class="col-12">
+            <input v-model="expense.note" class="form-control" placeholder="Note">
+          </div>
+          <div class="col-auto"><button class="btn btn-primary">{{ expense.id ? 'Update' : 'Add' }}</button></div>
+          <div class="col-auto" v-if="expense.id"><button type="button" class="btn btn-outline-secondary" @click="blankExpense">Cancel</button></div>
+        </form>
+        <div v-for="row in expenses" :key="row.id" class="d-flex gap-2 align-items-center border-bottom py-2">
+          <span class="me-auto">{{ row.expense_date }} · {{ row.note }} · {{ row.amount }}</span>
+          <button class="btn btn-sm btn-outline-secondary" @click="editExpense(row)">Edit</button>
+          <button class="btn btn-sm btn-outline-danger" @click="remove('expenses', row.id, loadExpenses)">Delete</button>
+        </div>
+      </div></div>
+
+      <div v-if="tab==='perspectives'" class="card"><div class="card-body">
+        <form class="row g-2 mb-3" @submit.prevent="savePerspective">
+          <div class="col"><input v-model="perspective.name" class="form-control" placeholder="Name" required></div>
+          <div class="col"><input v-model="perspective.value" class="form-control" placeholder="Value" required></div>
+          <div class="col">
+            <select v-model="perspective.type" class="form-select" required>
+              <option value="">Type</option>
+              <option v-for="type in perspectiveTypes" :key="type" :value="type">{{ type }}</option>
+            </select>
+          </div>
+          <div class="col"><input v-model="perspective.starting_value" class="form-control" placeholder="Starting value" required></div>
+          <div class="col-12 d-flex gap-3">
+            <label v-for="kind in insightKinds" :key="kind" class="form-check">
+              <input class="form-check-input" type="checkbox" :value="kind" v-model="perspective.kinds"> {{ kind }}
+            </label>
+          </div>
+          <div class="col-auto"><button class="btn btn-primary">{{ perspective.id ? 'Update' : 'Add' }}</button></div>
+          <div class="col-auto" v-if="perspective.id"><button type="button" class="btn btn-outline-secondary" @click="blankPerspective">Cancel</button></div>
+        </form>
+        <div v-for="row in perspectives" :key="row.id" class="d-flex gap-2 align-items-center border-bottom py-2">
+          <span class="me-auto">{{ row.name }} · {{ row.type }} · {{ row.value }}</span>
+          <button class="btn btn-sm btn-outline-secondary" @click="editPerspective(row)">Edit</button>
+          <button class="btn btn-sm btn-outline-secondary" @click="toggle('cost-perspectives', row.id, false)">Off</button>
+          <button class="btn btn-sm btn-outline-secondary" @click="toggle('cost-perspectives', row.id, true)">On</button>
+          <button class="btn btn-sm btn-outline-danger" @click="remove('cost-perspectives', row.id, loadPerspectives)">Delete</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script type="text/typescript" id="app-ts">
+    declare const Vue: { createApp: (options: object) => { mount: (selector: string) => void } }
+
+    type Tab = "categories" | "wallets" | "items" | "incomes" | "expenses" | "perspectives"
+
+    interface ApiError extends Error {
+      messages: string[]
+    }
+
+    interface Category {
+      id: number
+      name: string
+    }
+
+    interface Wallet {
+      id: number
+      name: string
+      currency: string
+      current: string
+    }
+
+    interface Item {
+      id: number
+      name: string
+      code: string
+      price: string
+      category: string
+    }
+
+    interface Income {
+      id: number
+      title: string
+      amount: string
+      income_date: string
+      wallet: { id: number; name: string }
+    }
+
+    interface Expense {
+      id: number
+      note: string
+      amount: string
+      expense_date: string
+      wallet: { id: number; name: string }
+      item: { id: number; name: string; price: string }
+    }
+
+    interface PerspectiveApplication {
+      money_insight_category: string
+      starting_value: string
+    }
+
+    interface Perspective {
+      id: number
+      name: string
+      value: string
+      type: string
+      applications: PerspectiveApplication[]
+    }
+
+    interface CategoryForm {
+      id?: number
+      name: string
+    }
+
+    interface WalletForm {
+      id?: number
+      name: string
+      currency: string
+    }
+
+    interface ItemForm {
+      id?: number
+      name: string
+      code: string
+      price: string
+      category_id: number | ""
+    }
+
+    interface IncomeForm {
+      id?: number
+      wallet_id: number | ""
+      title: string
+      amount: string
+      income_date: string
+    }
+
+    interface ExpenseForm {
+      id?: number
+      wallet_id: number | ""
+      item_id: number | ""
+      note: string
+      expense_date: string
+      qty: number
+      item_price: string
+      update_price: boolean
+    }
+
+    interface PerspectiveForm {
+      id?: number
+      name: string
+      value: string
+      type: string
+      starting_value: string
+      kinds: string[]
+    }
+
+    let itemSearchTimer = 0
+
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          base: localStorage.getItem("base") || "http://localhost:8088",
+          session: localStorage.getItem("session") || "",
+          tabs: ["categories", "wallets", "items", "incomes", "expenses", "perspectives"],
+          tab: "categories",
+          authTab: "login",
+          auth: { name: "", email: "", password: "" },
+          messages: [],
+          notice: "",
+          categories: [],
+          wallets: [],
+          items: [],
+          incomes: [],
+          expenses: [],
+          perspectives: [],
+          category: { name: "" },
+          wallet: { name: "", currency: "" },
+          item: { name: "", code: "", price: "", category_id: "" },
+          income: { wallet_id: "", title: "", amount: "", income_date: today() },
+          expense: { wallet_id: "", item_id: "", note: "", expense_date: today(), qty: 1, item_price: "", update_price: false },
+          itemQuery: "",
+          itemMenu: false,
+          itemIndex: 0,
+          itemMatches: [] as Item[],
+          perspective: { name: "", value: "", type: "", starting_value: "", kinds: [] },
+          perspectiveTypes: ["percentage", "ratio", "rate_hour", "rate_day", "rate_month"],
+          insightKinds: ["expense", "income", "daily_expense"],
+        }
+      },
+      mounted() {
+        if (this.session) this.open("categories")
+      },
+      methods: {
+        saveBase() {
+          this.base = this.base.replace(/\/$/, "")
+          localStorage.setItem("base", this.base)
+        },
+        clearFeedback() {
+          this.messages = []
+          this.notice = ""
+        },
+        fail(error: ApiError) {
+          this.notice = ""
+          this.messages = error.messages || [error.message || "Request failed"]
+        },
+        async call(method: string, path: string, body?: unknown): Promise<any> {
+          this.saveBase()
+          const headers = {}
+          if (body !== undefined) headers["Content-Type"] = "application/json"
+          if (this.session) headers["session_id"] = this.session
+          let response
+          try {
+            response = await fetch(this.base + path, {
+              method,
+              headers,
+              body: body === undefined ? undefined : JSON.stringify(body),
+            })
+          } catch (error) {
+            const failed = new Error("Cannot reach the API at " + this.base) as ApiError
+            failed.messages = [failed.message]
+            throw failed
+          }
+          const text = await response.text()
+          if (response.status === 304) {
+            this.notice = "Already in that state"
+            return null
+          }
+          if (response.status === 401) {
+            this.logout(false)
+          }
+          if (!response.ok) {
+            const failed = new Error("Request failed") as ApiError
+            failed.messages = messagesFrom(text, response.status)
+            throw failed
+          }
+          this.clearFeedback()
+          if (!text) return null
+          try {
+            return JSON.parse(text)
+          } catch (error) {
+            return text
+          }
+        },
+        async login() {
+          try {
+            const data = await this.call("POST", "/login", {
+              email: this.auth.email,
+              password: this.auth.password,
+            })
+            this.session = data.session_id
+            localStorage.setItem("session", this.session)
+            this.open("categories")
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        async register() {
+          try {
+            await this.call("POST", "/register", this.auth)
+            this.authTab = "login"
+            this.notice = "Account created. Log in to continue."
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        logout(clearNotice = true): void {
+          this.session = ""
+          localStorage.removeItem("session")
+          if (clearNotice) this.clearFeedback()
+        },
+        open(name: Tab) {
+          this.tab = name
+          this.clearFeedback()
+          const loaders = {
+            categories: () => this.loadCategories(),
+            wallets: () => this.loadWallets(),
+            items: () => this.loadItems(),
+            incomes: () => this.loadIncomes(),
+            expenses: () => this.loadExpenses(),
+            perspectives: () => this.loadPerspectives(),
+          }
+          loaders[name]().catch((error) => this.fail(error))
+        },
+        async loadCategories() {
+          const data = await this.call("GET", "/categories")
+          this.categories = data.results || []
+        },
+        async loadWallets() {
+          this.wallets = await this.call("GET", "/wallets") || []
+        },
+        async loadItems() {
+          await this.loadCategories()
+          const data = await this.call("GET", "/items")
+          this.items = data.items || []
+        },
+        async loadIncomes() {
+          await this.loadWallets()
+          if (!this.income.id) this.income.wallet_id = this.preferredWalletId()
+          if (!this.income.wallet_id) {
+            this.incomes = []
+            return
+          }
+          const data = await this.call("GET", "/incomes/list/" + this.income.wallet_id)
+          this.incomes = data.incomes || []
+        },
+        async loadExpenses() {
+          await this.loadWallets()
+          if (!this.expense.id) this.expense.wallet_id = this.preferredWalletId()
+          if (!this.expense.wallet_id) {
+            this.expenses = []
+            return
+          }
+          const data = await this.call("GET", "/expenses/list/" + this.expense.wallet_id)
+          this.expenses = data.expenses || []
+        },
+        async loadPerspectives() {
+          const data = await this.call("GET", "/cost-perspectives")
+          this.perspectives = data.results || []
+        },
+        async saveCategory() {
+          try {
+            const body = { name: this.category.name }
+            if (this.category.id) await this.call("PUT", "/categories/" + this.category.id, body)
+            else await this.call("POST", "/categories", body)
+            this.category = { name: "" }
+            await this.loadCategories()
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        async saveWallet() {
+          try {
+            const body = { name: this.wallet.name, currency: this.wallet.currency }
+            if (this.wallet.id) await this.call("PUT", "/wallets/" + this.wallet.id, body)
+            else await this.call("POST", "/wallets", body)
+            this.wallet = { name: "", currency: "" }
+            await this.loadWallets()
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        blankItem() {
+          this.item = { name: "", code: "", price: "", category_id: "" }
+        },
+        editItem(row: Item) {
+          const category = this.categories.find((item) => item.name === row.category)
+          this.item = {
+            id: row.id,
+            name: row.name,
+            code: row.code,
+            price: row.price,
+            category_id: category ? category.id : "",
+          }
+        },
+        async saveItem() {
+          try {
+            const body = {
+              name: this.item.name,
+              price: String(this.item.price),
+              category_id: Number(this.item.category_id),
+            }
+            if (this.item.code) body.code = this.item.code
+            if (this.item.id) await this.call("PUT", "/items/" + this.item.id, body)
+            else await this.call("POST", "/items", body)
+            this.blankItem()
+            await this.loadItems()
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        blankIncome() {
+          const walletId = this.income.wallet_id || this.preferredWalletId()
+          this.income = { wallet_id: walletId, title: "", amount: "", income_date: today() }
+        },
+        async editIncome(id: number) {
+          try {
+            const row = await this.call("GET", "/incomes/" + id)
+            this.income = {
+              id: row.id,
+              wallet_id: row.wallet.id,
+              title: row.title,
+              amount: row.amount,
+              income_date: String(row.income_date).slice(0, 10),
+            }
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        async saveIncome() {
+          try {
+            const body = {
+              title: this.income.title,
+              amount: String(this.income.amount),
+              income_date: this.income.income_date,
+              wallet_id: Number(this.income.wallet_id),
+            }
+            if (this.income.id) await this.call("PUT", "/incomes/" + this.income.id, body)
+            else await this.call("POST", "/incomes", body)
+            this.blankIncome()
+            await this.loadIncomes()
+            await this.loadWallets()
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        blankExpense() {
+          const walletId = this.expense.wallet_id || this.preferredWalletId()
+          this.itemQuery = ""
+          this.itemMenu = false
+          this.itemMatches = []
+          this.expense = { wallet_id: walletId, item_id: "", note: "", expense_date: today(), qty: 1, item_price: "", update_price: false }
+        },
+        editExpense(row: Expense) {
+          this.itemQuery = row.item.name
+          this.itemMenu = false
+          this.itemMatches = []
+          this.rememberWallet(row.wallet.id)
+          this.expense = {
+            id: row.id,
+            wallet_id: row.wallet.id,
+            item_id: row.item.id,
+            note: row.note,
+            expense_date: row.expense_date,
+            qty: 1,
+            item_price: row.item.price,
+            update_price: false,
+          }
+        },
+        preferredWalletId(): number | "" {
+          const saved = Number(localStorage.getItem("walletId"))
+          if (saved && this.wallets.some((row) => row.id === saved)) return saved
+          const id = this.wallets.length ? this.wallets[0].id : ""
+          if (id) this.rememberWallet(id)
+          return id
+        },
+        rememberWallet(id: number | ""): void {
+          if (id) localStorage.setItem("walletId", String(id))
+        },
+        onItemInput() {
+          this.itemMenu = true
+          this.itemIndex = 0
+          this.expense.item_id = ""
+          window.clearTimeout(itemSearchTimer)
+          const query = this.itemQuery.trim()
+          if (!query) {
+            this.itemMatches = []
+            return
+          }
+          itemSearchTimer = window.setTimeout(() => {
+            this.searchItems(query).catch((error: ApiError) => this.fail(error))
+          }, 200)
+        },
+        async searchItems(query: string) {
+          const data = await this.call("GET", "/items?search=" + encodeURIComponent(query))
+          if (this.itemQuery.trim() !== query) return
+          this.itemMatches = data.items || []
+        },
+        moveItem(step: number) {
+          if (!this.itemMatches.length) return
+          const count = this.itemMatches.length
+          this.itemIndex = (this.itemIndex + step + count) % count
+        },
+        onItemEnter(event: KeyboardEvent) {
+          if (!this.itemMenu || !this.itemMatches.length) return
+          event.preventDefault()
+          const row = this.itemMatches[this.itemIndex] || this.itemMatches[0]
+          this.chooseItem(row)
+        },
+        chooseItem(row: Item) {
+          this.expense.item_id = row.id
+          this.expense.item_price = row.price
+          this.itemQuery = row.name
+          this.itemMenu = false
+          this.itemMatches = []
+        },
+        async saveExpense() {
+          try {
+            if (!this.expense.item_id) {
+              this.messages = ["Choose an item from the suggestions"]
+              this.notice = ""
+              return
+            }
+            const body = {
+              expense_date: this.expense.expense_date,
+              note: this.expense.note,
+              WalletId: Number(this.expense.wallet_id),
+              item_id: Number(this.expense.item_id),
+              qty: Number(this.expense.qty),
+              item_price: String(this.expense.item_price),
+              UpdateItemPrice: this.expense.update_price,
+            }
+            if (this.expense.id) await this.call("PUT", "/expenses/" + this.expense.id, body)
+            else await this.call("POST", "/expenses", body)
+            this.blankExpense()
+            await this.loadExpenses()
+            await this.loadWallets()
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        blankPerspective() {
+          this.perspective = { name: "", value: "", type: "", starting_value: "", kinds: [] }
+        },
+        editPerspective(row: Perspective) {
+          this.perspective = {
+            id: row.id,
+            name: row.name,
+            value: row.value,
+            type: row.type,
+            starting_value: row.applications.length ? row.applications[0].starting_value : "",
+            kinds: row.applications.map((item) => item.money_insight_category),
+          }
+        },
+        async savePerspective() {
+          try {
+            if (!this.perspective.kinds.length) {
+              this.messages = ["Pick at least one insight category"]
+              return
+            }
+            const body = {
+              name: this.perspective.name,
+              value: String(this.perspective.value),
+              type: this.perspective.type,
+              applications: [{
+                money_insight_category: this.perspective.kinds,
+                starting_value: String(this.perspective.starting_value),
+              }],
+            }
+            if (this.perspective.id) await this.call("PUT", "/cost-perspectives/" + this.perspective.id, body)
+            else await this.call("POST", "/cost-perspectives", body)
+            this.blankPerspective()
+            await this.loadPerspectives()
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        async toggle(resource: string, id: number, active: boolean) {
+          try {
+            await this.call("POST", "/is-active/" + resource + "/" + id + "?is_active=" + (active ? "1" : "0"))
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        async remove(resource: string, id: number, reload?: () => Promise<void>) {
+          if (!window.confirm("Delete this record?")) return
+          try {
+            await this.call("DELETE", "/" + resource + "/" + id)
+            if (reload) await reload()
+            else await this.open(this.tab)
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+      },
+    }).mount("#app")
+
+    function today(): string {
+      const date = new Date()
+      const month = String(date.getMonth() + 1).padStart(2, "0")
+      const day = String(date.getDate()).padStart(2, "0")
+      return date.getFullYear() + "-" + month + "-" + day
+    }
+
+    function messagesFrom(text: string, status: number): string[] {
+      try {
+        const data = JSON.parse(text)
+        const list = Array.isArray(data) ? data : data.errors
+        if (Array.isArray(list) && list.length) {
+          return list.map((item) => item.field ? item.field + ": " + item.message : item.message)
+        }
+      } catch (error) {}
+      const plain = (text || "").trim()
+      return [plain || ("Request failed (" + status + ")")]
+    }
+  </script>
+  <script type="module">
+    import ts from "https://cdn.jsdelivr.net/npm/typescript@5.6.3/+esm"
+
+    const source = document.querySelector("#app-ts")?.textContent || ""
+    const result = ts.transpileModule(source, {
+      fileName: "app.ts",
+      reportDiagnostics: true,
+      compilerOptions: { target: ts.ScriptTarget.ES2020, strict: false },
+    })
+
+    const problems = result.diagnostics || []
+    if (problems.length) {
+      const box = document.createElement("pre")
+      box.className = "alert alert-warning m-3"
+      box.textContent = problems.map((item) => ts.flattenDiagnosticMessageText(item.messageText, "\n")).join("\n")
+      document.body.prepend(box)
+    }
+
+    const script = document.createElement("script")
+    script.text = result.outputText
+    document.body.appendChild(script)
+  </script>
+</body>
+</html>
