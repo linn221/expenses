@@ -14,12 +14,12 @@ type NewExpense struct {
 	ExpenseDate models.MyDate   `json:"expense_date" validate:"required"`
 	Amount      decimal.Decimal `json:"amount"`
 	Note        string          `json:"note" validate:"omitempty,min=3,max=255"`
-	WalletId    int
+	WalletId    int             `json:"wallet_id"`
 
 	ItemId          int             `json:"item_id" validate:"required,gte=1"`
 	Qty             int             `json:"qty" validate:"required,gte=1"`
 	ItemPrice       decimal.Decimal `json:"item_price" validate:"required"`
-	UpdateItemPrice bool
+	UpdateItemPrice bool            `json:"update_item_price"`
 }
 
 type ExpenseFilter struct {

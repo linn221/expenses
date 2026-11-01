@@ -437,7 +437,7 @@ http://localhost:8080/incomes/paginate/1?page=1&order=id&direction=asc
 ## 6.1. create expense
 
 Note:
-stored amount is `item_price` times `qty`. The wallet balance must cover it. `UpdateItemPrice` true also sets the item price. `note` is optional; when set it is 3–255 characters.
+stored amount is `item_price` times `qty`. The wallet balance must cover it. `update_item_price` true also sets the item price. `note` is optional; when set it is 3–255 characters.
 
 **POST**
 ```http
@@ -449,11 +449,11 @@ http://localhost:8080/expenses
 {
     "expense_date": "2026-10-28",
     "note": "morning coffee",
-    "WalletId": 1,
+    "wallet_id": 1,
     "item_id": 1,
     "qty": 1,
     "item_price": "500",
-    "UpdateItemPrice": false
+    "update_item_price": false
 }
 ```
 
@@ -481,11 +481,11 @@ http://localhost:8080/expenses/1
 {
     "expense_date": "2026-10-29",
     "note": "evening coffee",
-    "WalletId": 1,
+    "wallet_id": 1,
     "item_id": 1,
     "qty": 2,
     "item_price": "500",
-    "UpdateItemPrice": false
+    "update_item_price": false
 }
 ```
 

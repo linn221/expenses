@@ -1,13 +1,29 @@
 ---
-description: Keep the Bruno collection in sync with API changes
+description: Keep Bruno, API docs, and the client in sync when the HTTP API changes
 alwaysApply: true
 ---
 
-# Bruno collection
+# API contract
 
-When a change adds, removes, or alters an HTTP endpoint — path, method, request body, or query parameters — update `bruno/expenses/` in the same change.
+When a change adds, removes, or alters an HTTP endpoint — path, method, request body, query parameters, or response JSON — update all of these in the same change:
+
+- `bruno/expenses/`
+- `docs/api.md`
+- `client/`
+
+Every HTTP JSON request and response field name is snake_case. Put that name in the struct tag, for example `json:"wallet_id"` and `json:"update_item_price"`.
+
+## Bruno
 
 - Match existing request files: `{resource}.yml` (list), `{resource}Create.yml`, `{resource}Update.yml`, `{resource}Details.yml`, `{resource}Delete.yml`.
 - Use `{{url}}` for the host, `auth: inherit`, and the same settings block as the other requests.
 - List requests must include the path and query parameters the handler actually reads.
 - Request bodies must match the JSON field names and example shapes used by the DTO.
+
+## Docs
+
+- `docs/api.md` is the API reference. Update the affected endpoint's method, path, notes, query parameters, and JSON examples so they match the handler and DTO tags.
+
+## Client
+
+- `client/` calls these endpoints. Update request bodies, response field reads, and any UI that depends on a changed field.

@@ -13,11 +13,11 @@ http:
         "expense_date": "2026-10-28",
         "amount": "7000",
         "note": "morning coffee x2",
-        "WalletId": 1,
+        "wallet_id": 1,
         "item_id": 1,
         "qty": 2,
         "item_price": "3500",
-        "UpdateItemPrice": false
+        "update_item_price": false
       }
   auth: inherit
 

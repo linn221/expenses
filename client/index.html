@@ -149,7 +149,7 @@
           <div class="col"><input v-model.number="expense.qty" type="number" min="1" class="form-control" placeholder="Qty" required></div>
           <div class="col"><input v-model="expense.item_price" class="form-control" placeholder="Item price" required></div>
           <div class="col-12 form-check ms-2">
-            <input v-model="expense.update_price" class="form-check-input" type="checkbox" id="updatePrice">
+            <input v-model="expense.update_item_price" class="form-check-input" type="checkbox" id="updatePrice">
             <label class="form-check-label" for="updatePrice">Update the item's price</label>
           </div>
           <div class="col-12">
@@ -290,7 +290,7 @@
       expense_date: string
       qty: number
       item_price: string
-      update_price: boolean
+      update_item_price: boolean
     }
 
     interface PerspectiveForm {
@@ -327,7 +327,7 @@
           wallet: { name: "", currency: "" },
           item: { name: "", code: "", price: "", category_id: "" },
           income: { wallet_id: "", title: "", amount: "", income_date: today() },
-          expense: { wallet_id: "", item_id: "", note: "", expense_date: today(), qty: 1, item_price: "", update_price: false },
+          expense: { wallet_id: "", item_id: "", note: "", expense_date: today(), qty: 1, item_price: "", update_item_price: false },
           itemQuery: "",
           itemMenu: false,
           itemIndex: 0,
@@ -558,7 +558,7 @@
           this.itemQuery = ""
           this.itemMenu = false
           this.itemMatches = []
-          this.expense = { wallet_id: walletId, item_id: "", note: "", expense_date: today(), qty: 1, item_price: "", update_price: false }
+          this.expense = { wallet_id: walletId, item_id: "", note: "", expense_date: today(), qty: 1, item_price: "", update_item_price: false }
         },
         editExpense(row: Expense) {
           this.itemQuery = row.item.name
@@ -573,7 +573,7 @@
             expense_date: row.expense_date,
             qty: 1,
             item_price: row.item.price,
-            update_price: false,
+            update_item_price: false,
           }
         },
         preferredWalletId(): number | "" {
@@ -633,11 +633,11 @@
             const body = {
               expense_date: this.expense.expense_date,
               note: this.expense.note,
-              WalletId: Number(this.expense.wallet_id),
+              wallet_id: Number(this.expense.wallet_id),
               item_id: Number(this.expense.item_id),
               qty: Number(this.expense.qty),
               item_price: String(this.expense.item_price),
-              UpdateItemPrice: this.expense.update_price,
+              update_item_price: this.expense.update_item_price,
             }
             if (this.expense.id) await this.call("PUT", "/expenses/" + this.expense.id, body)
             else await this.call("POST", "/expenses", body)

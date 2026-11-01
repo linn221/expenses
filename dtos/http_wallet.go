@@ -6,8 +6,8 @@ import (
 )
 
 type NewWallet struct {
-	Name     string
-	Currency string
+	Name     string `json:"name"`
+	Currency string `json:"currency"`
 }
 
 func (i NewWallet) ToModel(session *app.Session) models.Wallet {

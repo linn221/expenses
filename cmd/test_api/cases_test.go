@@ -297,7 +297,7 @@ var Cases = []Case{
 		Method:     "POST",
 		Path:       "/expenses",
 		Auth:       true,
-		Body:       `{"expense_date":"2026-10-28","note":"morning coffee","WalletId":{{walletId}},"item_id":{{itemId}},"qty":1,"item_price":"500","UpdateItemPrice":false}`,
+		Body:       `{"expense_date":"2026-10-28","note":"morning coffee","wallet_id":{{walletId}},"item_id":{{itemId}},"qty":1,"item_price":"500","update_item_price":false}`,
 		WantStatus: 201,
 		Save:       map[string]string{"expenseId": "id"},
 		Want:       map[string]string{"note": "morning coffee", "amount": "500", "expense_date": "2026-10-28"},
@@ -324,7 +324,7 @@ var Cases = []Case{
 		Method:     "PUT",
 		Path:       "/expenses/{{expenseId}}",
 		Auth:       true,
-		Body:       `{"expense_date":"2026-10-29","note":"evening coffee","WalletId":{{walletId}},"item_id":{{itemId}},"qty":2,"item_price":"500","UpdateItemPrice":false}`,
+		Body:       `{"expense_date":"2026-10-29","note":"evening coffee","wallet_id":{{walletId}},"item_id":{{itemId}},"qty":2,"item_price":"500","update_item_price":false}`,
 		WantStatus: 200,
 	},
 	{
