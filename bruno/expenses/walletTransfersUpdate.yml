@@ -1,0 +1,26 @@
+info:
+  name: walletTransfersUpdate
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{url}}/wallet-transfers/1"
+  body:
+    type: json
+    data: |-
+      {
+        "from_wallet_id": 1,
+        "to_wallet_id": 2,
+        "transfer_date": "2026-10-29",
+        "transfer_amount": "2000",
+        "description": "rent"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

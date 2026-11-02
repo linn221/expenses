@@ -42,6 +42,19 @@
     </div>
 
     <div v-else>
+      <div v-if="profile" class="card mb-3"><div class="card-body">
+        <div class="fw-semibold">{{ profile.name }}</div>
+        <div class="text-secondary small mb-3">{{ profile.email }}</div>
+        <div class="small text-secondary mb-2">Remaining balance</div>
+        <div v-if="profile.wallets.length" class="d-flex flex-wrap gap-2">
+          <div v-for="row in profile.wallets" :key="row.id" class="border rounded px-3 py-2">
+            <div class="small text-secondary">{{ row.name }} · {{ row.currency }}</div>
+            <div class="fw-semibold">{{ row.current }}</div>
+          </div>
+        </div>
+        <div v-else class="text-secondary">No wallets</div>
+      </div></div>
+
       <ul class="nav nav-pills mb-3 flex-wrap gap-1">
         <li v-for="name in tabs" :key="name" class="nav-item">
           <button class="nav-link" :class="{active: tab===name}" @click="open(name)">{{ name }}</button>
@@ -79,6 +92,33 @@
         </div>
       </div></div>
 
+      <div v-if="tab==='transfers'" class="card"><div class="card-body">
+        <form class="row g-2 mb-3" @submit.prevent="saveTransfer">
+          <div class="col-md">
+            <select v-model="transfer.from_wallet_id" class="form-select" required>
+              <option value="">From wallet</option>
+              <option v-for="row in wallets" :key="row.id" :value="row.id">{{ row.name }}</option>
+            </select>
+          </div>
+          <div class="col-md">
+            <select v-model="transfer.to_wallet_id" class="form-select" required>
+              <option value="">To wallet</option>
+              <option v-for="row in wallets" :key="row.id" :value="row.id">{{ row.name }}</option>
+            </select>
+          </div>
+          <div class="col"><input v-model="transfer.transfer_amount" class="form-control" placeholder="Amount" required></div>
+          <div class="col"><input v-model="transfer.transfer_date" type="date" class="form-control" required></div>
+          <div class="col-12"><input v-model="transfer.description" class="form-control" placeholder="Description"></div>
+          <div class="col-auto"><button class="btn btn-primary">{{ transfer.id ? 'Update' : 'Add' }}</button></div>
+          <div class="col-auto" v-if="transfer.id"><button type="button" class="btn btn-outline-secondary" @click="blankTransfer">Cancel</button></div>
+        </form>
+        <div v-for="row in transfers" :key="row.id" class="d-flex gap-2 align-items-center border-bottom py-2">
+          <span class="me-auto">{{ row.transfer_date }} · {{ row.from_wallet.name }} → {{ row.to_wallet.name }} · {{ row.transfer_amount }} · {{ row.description }}</span>
+          <button class="btn btn-sm btn-outline-secondary" @click="editTransfer(row.id)">Edit</button>
+          <button class="btn btn-sm btn-outline-danger" @click="remove('wallet-transfers', row.id, loadTransfers)">Delete</button>
+        </div>
+      </div></div>
+
       <div v-if="tab==='items'" class="card"><div class="card-body">
         <form class="row g-2 mb-3" @submit.prevent="saveItem">
           <div class="col-12 col-md"><input v-model="item.name" class="form-control" placeholder="Name" required></div>
@@ -106,7 +146,7 @@
         <form class="row g-2 mb-3" @submit.prevent="saveIncome">
           <div class="col-12 col-md">
             <select v-model="income.wallet_id" class="form-select" required @change="rememberWallet(income.wallet_id); loadIncomes().catch(fail)">
-              <option value="">Wallet</option>
+              <option v-if="!wallets.length" value="" disabled>Wallet</option>
               <option v-for="row in wallets" :key="row.id" :value="row.id">{{ row.name }}</option>
             </select>
           </div>
@@ -127,7 +167,7 @@
         <form class="row g-2 mb-3" @submit.prevent="saveExpense">
           <div class="col-md-6">
             <select v-model="expense.wallet_id" class="form-select" required @change="rememberWallet(expense.wallet_id); loadExpenses().catch(fail)">
-              <option value="">Wallet</option>
+              <option v-if="!wallets.length" value="" disabled>Wallet</option>
               <option v-for="row in wallets" :key="row.id" :value="row.id">{{ row.name }} ({{ row.current }})</option>
             </select>
           </div>
@@ -199,7 +239,7 @@
   <script type="text/typescript" id="app-ts">
     declare const Vue: { createApp: (options: object) => { mount: (selector: string) => void } }
 
-    type Tab = "categories" | "wallets" | "items" | "incomes" | "expenses" | "perspectives"
+    type Tab = "categories" | "wallets" | "transfers" | "items" | "incomes" | "expenses" | "perspectives"
 
     interface ApiError extends Error {
       messages: string[]
@@ -223,6 +263,15 @@
       code: string
       price: string
       category: string
+    }
+
+    interface Transfer {
+      id: number
+      transfer_amount: string
+      transfer_date: string
+      description: string
+      from_wallet: { id: number; name: string }
+      to_wallet: { id: number; name: string }
     }
 
     interface Income {
@@ -274,6 +323,15 @@
       category_id: number | ""
     }
 
+    interface TransferForm {
+      id?: number
+      from_wallet_id: number | ""
+      to_wallet_id: number | ""
+      transfer_amount: string
+      transfer_date: string
+      description: string
+    }
+
     interface IncomeForm {
       id?: number
       wallet_id: number | ""
@@ -302,6 +360,19 @@
       kinds: string[]
     }
 
+    interface ProfileWallet {
+      id: number
+      name: string
+      currency: string
+      current: string
+    }
+
+    interface Profile {
+      name: string
+      email: string
+      wallets: ProfileWallet[]
+    }
+
     let itemSearchTimer = 0
 
     const { createApp } = Vue
@@ -311,20 +382,23 @@
         return {
           base: localStorage.getItem("base") || "http://localhost:8088",
           session: localStorage.getItem("session") || "",
-          tabs: ["categories", "wallets", "items", "incomes", "expenses", "perspectives"],
+          tabs: ["categories", "wallets", "transfers", "items", "incomes", "expenses", "perspectives"],
           tab: "categories",
           authTab: "login",
           auth: { name: "", email: "", password: "" },
           messages: [],
           notice: "",
+          profile: null as Profile | null,
           categories: [],
           wallets: [],
+          transfers: [],
           items: [],
           incomes: [],
           expenses: [],
           perspectives: [],
           category: { name: "" },
           wallet: { name: "", currency: "" },
+          transfer: { from_wallet_id: "", to_wallet_id: "", transfer_amount: "", transfer_date: today(), description: "" },
           item: { name: "", code: "", price: "", category_id: "" },
           income: { wallet_id: "", title: "", amount: "", income_date: today() },
           expense: { wallet_id: "", item_id: "", note: "", expense_date: today(), qty: 1, item_price: "", update_item_price: false },
@@ -413,10 +487,20 @@
             this.fail(error)
           }
         },
-        logout(clearNotice = true): void {
+        async logout(clearNotice = true): Promise<void> {
+          const session = this.session
           this.session = ""
+          this.profile = null
           localStorage.removeItem("session")
           if (clearNotice) this.clearFeedback()
+          if (!session) return
+          this.saveBase()
+          try {
+            await fetch(this.base + "/logout", {
+              method: "POST",
+              headers: { session_id: session },
+            })
+          } catch (error) {}
         },
         open(name: Tab) {
           this.tab = name
@@ -424,12 +508,16 @@
           const loaders = {
             categories: () => this.loadCategories(),
             wallets: () => this.loadWallets(),
+            transfers: () => this.loadTransfers(),
             items: () => this.loadItems(),
             incomes: () => this.loadIncomes(),
             expenses: () => this.loadExpenses(),
             perspectives: () => this.loadPerspectives(),
           }
-          loaders[name]().catch((error) => this.fail(error))
+          loaders[name]().then(() => this.loadProfile()).catch((error) => this.fail(error))
+        },
+        async loadProfile() {
+          this.profile = await this.call("GET", "/profile")
         },
         async loadCategories() {
           const data = await this.call("GET", "/categories")
@@ -437,6 +525,47 @@
         },
         async loadWallets() {
           this.wallets = await this.call("GET", "/wallets") || []
+        },
+        async loadTransfers() {
+          await this.loadWallets()
+          const data = await this.call("GET", "/wallet-transfers")
+          this.transfers = data.wallet_transfers || []
+        },
+        blankTransfer() {
+          this.transfer = { from_wallet_id: "", to_wallet_id: "", transfer_amount: "", transfer_date: today(), description: "" }
+        },
+        async editTransfer(id: number) {
+          try {
+            const row = await this.call("GET", "/wallet-transfers/" + id)
+            this.transfer = {
+              id: row.id,
+              from_wallet_id: row.from_wallet.id,
+              to_wallet_id: row.to_wallet.id,
+              transfer_amount: row.transfer_amount,
+              transfer_date: String(row.transfer_date).slice(0, 10),
+              description: row.description,
+            }
+          } catch (error) {
+            this.fail(error)
+          }
+        },
+        async saveTransfer() {
+          try {
+            const body = {
+              from_wallet_id: Number(this.transfer.from_wallet_id),
+              to_wallet_id: Number(this.transfer.to_wallet_id),
+              transfer_date: this.transfer.transfer_date,
+              transfer_amount: String(this.transfer.transfer_amount),
+              description: this.transfer.description,
+            }
+            if (this.transfer.id) await this.call("PUT", "/wallet-transfers/" + this.transfer.id, body)
+            else await this.call("POST", "/wallet-transfers", body)
+            this.blankTransfer()
+            await this.loadTransfers()
+            await this.loadProfile()
+          } catch (error) {
+            this.fail(error)
+          }
         },
         async loadItems() {
           await this.loadCategories()
@@ -485,6 +614,7 @@
             else await this.call("POST", "/wallets", body)
             this.wallet = { name: "", currency: "" }
             await this.loadWallets()
+            await this.loadProfile()
           } catch (error) {
             this.fail(error)
           }
@@ -549,6 +679,7 @@
             this.blankIncome()
             await this.loadIncomes()
             await this.loadWallets()
+            await this.loadProfile()
           } catch (error) {
             this.fail(error)
           }
@@ -644,6 +775,7 @@
             this.blankExpense()
             await this.loadExpenses()
             await this.loadWallets()
+            await this.loadProfile()
           } catch (error) {
             this.fail(error)
           }
@@ -695,8 +827,10 @@
           if (!window.confirm("Delete this record?")) return
           try {
             await this.call("DELETE", "/" + resource + "/" + id)
-            if (reload) await reload()
-            else await this.open(this.tab)
+            if (reload) {
+              await reload()
+              await this.loadProfile()
+            } else await this.open(this.tab)
           } catch (error) {
             this.fail(error)
           }

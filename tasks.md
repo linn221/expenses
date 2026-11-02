@@ -1,2 +1,5 @@
+- [ ] transfer wallet
+- [ ] wallet amounts api
+- [ ] show MoneyInsights from the created CostPerspective
 - [ ] implement Resource collection
 - [ ] implement structured logging

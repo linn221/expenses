@@ -16,10 +16,10 @@ type NewExpense struct {
 	Note        string          `json:"note" validate:"omitempty,min=3,max=255"`
 	WalletId    int             `json:"wallet_id"`
 
-	ItemId          int             `json:"item_id" validate:"required,gte=1"`
-	Qty             int             `json:"qty" validate:"required,gte=1"`
-	ItemPrice       decimal.Decimal `json:"item_price" validate:"required"`
-	UpdateItemPrice bool            `json:"update_item_price"`
+	ItemId          int            `json:"item_id" validate:"required,gte=1"`
+	Qty             int            `json:"qty" validate:"required,gte=1"`
+	ItemPrice       NaturalDecimal `json:"item_price" validate:"required"`
+	UpdateItemPrice bool           `json:"update_item_price"`
 }
 
 type ExpenseFilter struct {
@@ -76,7 +76,7 @@ func (input NewExpense) ToModel(session *app.Session) models.Expense {
 	e := models.Expense{
 		ItemId:        input.ItemId,
 		Qty:           input.Qty,
-		ItemPrice:     input.ItemPrice,
+		ItemPrice:     input.ItemPrice.Decimal,
 		ExpenseAmount: input.ItemPrice.Mul(decimal.NewFromInt(int64(input.Qty))),
 		ExpenseDate:   input.ExpenseDate,
 		Note:          input.Note,

@@ -30,20 +30,26 @@ func Handler(c *app.Container) http.Handler {
 	r := NewNormalRouter()
 	r.NewInstance("POST /login", controllers.LoginController.Login(), rateLimiter)
 	r.NewInstance("POST /register", controllers.LoginController.Register(), rateLimiter)
-	r.NewInstance("GET /incomes/list/{walletId}", controllers.IncomeController.ListByWalletId())
-	r.NewInstance("GET /incomes/paginate/{walletId}", controllers.IncomeController.PaginateByWalletId())
-	r.NewInstance("GET /expenses/list/{walletId}", controllers.ExpenseController.ListByWalletId())
-	r.NewInstance("GET /expenses/paginate/{walletId}", controllers.ExpenseController.PaginateByWalletId())
-	r.Register(mux)
+
+	authR := NewNormalRouter(middlewares.Auth())
+	authR.NewInstance("POST /logout", controllers.LoginController.Logout())
+	authR.NewInstance("GET /profile", controllers.ProfileController.Get())
+	authR.NewInstance("GET /incomes/list/{walletId}", controllers.IncomeController.ListByWalletId())
+	authR.NewInstance("GET /incomes/paginate/{walletId}", controllers.IncomeController.PaginateByWalletId())
+	authR.NewInstance("GET /expenses/list/{walletId}", controllers.ExpenseController.ListByWalletId())
+	authR.NewInstance("GET /expenses/paginate/{walletId}", controllers.ExpenseController.PaginateByWalletId())
 
 	rest := NewRestRouter(middlewares.Auth())
 	rest.NewResource("/categories", controllers.CategoryController)
 	rest.NewResource("/wallets", controllers.WalletController)
+	rest.NewResource("/wallet-transfers", controllers.WalletTransferController)
 	rest.NewResource("/items", controllers.ItemController)
 	rest.NewResource("/incomes", controllers.IncomeController)
 	rest.NewResource("/expenses", controllers.ExpenseController)
 	rest.NewResource("/cost-perspectives", controllers.CostPerspectiveController)
 
+	r.Register(mux)
+	authR.Register(mux)
 	rest.Register(mux)
 
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {

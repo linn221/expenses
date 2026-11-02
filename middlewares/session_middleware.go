@@ -27,6 +27,7 @@ func Session(sessionStore utils.CacheService) func(http.Handler) http.Handler {
 					}
 					ctx := r.Context()
 					ctx = app.SetUserId(ctx, userId)
+					ctx = app.SetSessionId(ctx, sessionId)
 					r = r.WithContext(ctx)
 				}
 			}
@@ -39,6 +40,7 @@ func Session(sessionStore utils.CacheService) func(http.Handler) http.Handler {
 				}
 				ctx := r.Context()
 				ctx = app.SetUserId(ctx, userId)
+				ctx = app.SetSessionId(ctx, cookies.Value)
 				r = r.WithContext(ctx)
 			}
 			next.ServeHTTP(w, r)

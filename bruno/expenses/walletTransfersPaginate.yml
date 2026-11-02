@@ -1,0 +1,14 @@
+info:
+  name: walletTransfersPaginate
+  type: http
+
+http:
+  method: GET
+  url: "{{url}}/wallet-transfers/paginate?page=1&order=id&direction=desc"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

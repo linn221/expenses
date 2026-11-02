@@ -7,8 +7,10 @@ import (
 type Provider struct {
 	CategoryService        *categoryService
 	LoginService           *loginService
+	ProfileService         *profileService
 	SessionIdService       *sessionIdService
 	WalletService          *walletService
+	WalletTransferService  *walletTransferService
 	ItemService            *itemService
 	IncomeService          *incomeService
 	ExpenseService         *expenseService
@@ -23,8 +25,10 @@ func New(c *app.Container) *Provider {
 	return &Provider{
 		CategoryService:        &categoryService{Container: c},
 		LoginService:           &loginService{Container: c},
+		ProfileService:         &profileService{Container: c},
 		SessionIdService:       &sessionIdService{Container: c},
 		WalletService:          &walletService{Container: c},
+		WalletTransferService:  &walletTransferService{Container: c},
 		ItemService:            &itemService{Container: c},
 		IncomeService:          &incomeService{Container: c},
 		ExpenseService:         &expenseService{Container: c},

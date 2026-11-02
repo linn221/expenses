@@ -10,14 +10,14 @@ import (
 
 type NewCostPerspective struct {
 	Name         string                          `json:"name" validate:"required,min=3,max=255"`
-	Value        decimal.Decimal                 `json:"value" validate:"required"`
+	Value        NaturalDecimal                  `json:"value" validate:"required"`
 	Type         string                          `json:"type" validate:"required,oneof=percentage ratio rate_hour rate_day rate_month"`
 	Applications []NewCostPerspectiveApplication `json:"applications" validate:"required,dive"`
 }
 
 type NewCostPerspectiveApplication struct {
 	MoneyInsightCategory []models.MoneyInsightCategory `json:"money_insight_category" validate:"required,min=1,dive,oneof=expense income daily_expense"`
-	StartingValue        decimal.Decimal               `json:"starting_value" validate:"required"`
+	StartingValue        NaturalDecimal                `json:"starting_value" validate:"required"`
 }
 
 func (input NewCostPerspective) ToModel(session *app.Session) models.CostPerspective {
@@ -26,14 +26,14 @@ func (input NewCostPerspective) ToModel(session *app.Session) models.CostPerspec
 		for _, insight := range application.MoneyInsightCategory {
 			applications = append(applications, models.CostPerspectiveApplication{
 				MoneyInsightCategory: insight,
-				StartingValue:        application.StartingValue,
+				StartingValue:        application.StartingValue.Decimal,
 			})
 		}
 	}
 
 	model := models.CostPerspective{
 		Name:         input.Name,
-		Value:        input.Value,
+		Value:        input.Value.Decimal,
 		Type:         models.CostPerspectiveType(input.Type),
 		Applications: applications,
 	}

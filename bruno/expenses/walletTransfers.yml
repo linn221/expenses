@@ -1,0 +1,16 @@
+info:
+  name: walletTransfers
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{url}}/wallet-transfers?search=rent&transfer_date=2026-10-29&from_wallet_id=1&to_wallet_id=2"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

@@ -11,10 +11,10 @@ import (
 )
 
 type NewIncome struct {
-	IncomeDate models.MyDate   `json:"income_date" validate:"required"`
-	Amount     decimal.Decimal `json:"amount" validate:"required"`
-	Title      string          `json:"title" validate:"required,min=3,max=255"`
-	WalletId   int             `json:"wallet_id" validate:"required,gte=1"`
+	IncomeDate models.MyDate  `json:"income_date" validate:"required"`
+	Amount     NaturalDecimal `json:"amount" validate:"required"`
+	Title      string         `json:"title" validate:"required,min=3,max=255"`
+	WalletId   int            `json:"wallet_id" validate:"required,gte=1"`
 }
 
 type IncomeFilter struct {
@@ -68,7 +68,7 @@ func (f IncomeFilter) Parse(r *http.Request) (*IncomeFilter, error) {
 func (input NewIncome) ToModel(session *app.Session) models.Income {
 	model := models.Income{
 		Title:      input.Title,
-		Amount:     input.Amount,
+		Amount:     input.Amount.Decimal,
 		IncomeDate: input.IncomeDate,
 	}
 	model.UserId = session.UserId

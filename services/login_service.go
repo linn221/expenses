@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/dtos"
@@ -28,6 +29,17 @@ func (s *loginService) Login(ctx context.Context, input *dtos.LoginInfo) (*model
 		return nil, utils.NewInternalServerError(err.Error())
 	}
 	return &user, nil
+}
+
+func (s *loginService) Logout(ctx context.Context, session *app.Session) error {
+	if session.UserId <= 0 {
+		return utils.NewBadRequest("user does not exist")
+	}
+	sessionId, err := app.GetSessionId(ctx)
+	if err != nil {
+		return err
+	}
+	return s.Cache.RemoveKey(fmt.Sprintf("Session:%s", sessionId))
 }
 
 func (s *loginService) Register(ctx context.Context, input *dtos.NewUser) (*models.User, error) {

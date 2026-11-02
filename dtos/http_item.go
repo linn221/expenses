@@ -12,10 +12,10 @@ import (
 )
 
 type NewItem struct {
-	Name       string          `json:"name" validate:"required,min=3,max=255"`
-	Code       string          `json:"code" validate:"omitempty,min=3,max=255"`
-	Price      decimal.Decimal `json:"price" validate:"required"`
-	CategoryId int             `json:"category_id" validate:"required"`
+	Name       string         `json:"name" validate:"required,min=3,max=255"`
+	Code       string         `json:"code" validate:"omitempty,min=3,max=255"`
+	Price      NaturalDecimal `json:"price" validate:"required"`
+	CategoryId int            `json:"category_id" validate:"required"`
 }
 
 func (input NewItem) ToModel(session *app.Session) models.Item {
@@ -26,7 +26,7 @@ func (input NewItem) ToModel(session *app.Session) models.Item {
 	item := models.Item{
 		Name:       input.Name,
 		Code:       code,
-		Price:      input.Price,
+		Price:      input.Price.Decimal,
 		CategoryId: input.CategoryId,
 	}
 	item.UserId = session.UserId

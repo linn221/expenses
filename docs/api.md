@@ -13,7 +13,9 @@ Register, login, and `GET /` are public. Register and login allow 50 calls per I
 - [1. Authentication](#1-authentication)
    * [1.1. register](#11-register)
    * [1.2. login](#12-login)
-   * [1.3. hello](#13-hello)
+   * [1.3. logout](#13-logout)
+   * [1.4. hello](#14-hello)
+   * [1.5. profile](#15-profile)
 - [2. categories](#2-categories)
    * [2.1. create category](#21-create-category)
    * [2.2. show category](#22-show-category)
@@ -59,6 +61,13 @@ Register, login, and `GET /` are public. Register and login allow 50 calls per I
    * [7.5. list cost perspectives](#75-list-cost-perspectives)
    * [7.6. paginate cost perspectives](#76-paginate-cost-perspectives)
    * [7.7. toggle cost perspective](#77-toggle-cost-perspective)
+- [8. wallet-transfers](#8-wallet-transfers)
+   * [8.1. create wallet transfer](#81-create-wallet-transfer)
+   * [8.2. show wallet transfer](#82-show-wallet-transfer)
+   * [8.3. update wallet transfer](#83-update-wallet-transfer)
+   * [8.4. delete wallet transfer](#84-delete-wallet-transfer)
+   * [8.5. list wallet transfers](#85-list-wallet-transfers)
+   * [8.6. paginate wallet transfers](#86-paginate-wallet-transfers)
 
 # 1. Authentication
 ## 1.1. register
@@ -100,12 +109,47 @@ http://localhost:8080/login
 ```
 
 
-## 1.3. hello
+## 1.3. logout
+
+Note:
+requires a session. Deletes that session and clears the `session_id` cookie. `204` when it succeeds.
+
+**POST**
+```http
+http://localhost:8080/logout
+```
+
+## 1.4. hello
 
 
 **GET**
 ```http
 http://localhost:8080/
+```
+
+## 1.5. profile
+
+Note:
+requires a session. `wallets` lists every wallet for the user. `current` is that wallet's remaining balance.
+
+**GET**
+```http
+http://localhost:8080/profile
+```
+
+```json
+{
+    "name": "user",
+    "email": "user@example.com",
+    "wallets": [
+        {
+            "id": 1,
+            "name": "Wallet",
+            "currency": "MMK",
+            "current": "0"
+        }
+    ]
+}
 ```
 
 ----------------------------
@@ -612,6 +656,88 @@ http://localhost:8080/cost-perspectives/paginate?name=fees&page=1&order=id&direc
 **POST**
 ```http
 http://localhost:8080/is-active/cost-perspectives/1?is_active=0
+```
+
+----------------------------
+# 8. wallet-transfers
+## 8.1. create wallet transfer
+
+Note:
+`transfer_amount` must be greater than zero. `description` is optional; when set it is 3–255 characters. Both wallets must belong to the user. Saving the transfer does not change wallet balances.
+
+**POST**
+```http
+http://localhost:8080/wallet-transfers
+```
+[*raw*]
+
+```json
+{
+    "from_wallet_id": 1,
+    "to_wallet_id": 2,
+    "transfer_date": "2026-10-28",
+    "transfer_amount": "1500",
+    "description": "move cash"
+}
+```
+
+
+## 8.2. show wallet transfer
+
+
+**GET**
+```http
+http://localhost:8080/wallet-transfers/1
+```
+
+## 8.3. update wallet transfer
+
+Note:
+replaces the stored fields. Does not change wallet balances.
+
+**PUT**
+```http
+http://localhost:8080/wallet-transfers/1
+```
+[*raw*]
+
+```json
+{
+    "from_wallet_id": 1,
+    "to_wallet_id": 2,
+    "transfer_date": "2026-10-29",
+    "transfer_amount": "2000",
+    "description": "rent"
+}
+```
+
+
+## 8.4. delete wallet transfer
+
+Note:
+removes the record. Does not change wallet balances.
+
+**DELETE**
+```http
+http://localhost:8080/wallet-transfers/1
+```
+
+## 8.5. list wallet transfers
+
+Note:
+optional `search` (description), `transfer_date`, `from_wallet_id`, and `to_wallet_id`.
+
+**GET**
+```http
+http://localhost:8080/wallet-transfers?search=rent&transfer_date=2026-10-29&from_wallet_id=1&to_wallet_id=2
+```
+
+## 8.6. paginate wallet transfers
+
+
+**GET**
+```http
+http://localhost:8080/wallet-transfers/paginate?page=1&order=id&direction=desc
 ```
 
 ----------------------------

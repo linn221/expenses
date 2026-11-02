@@ -1,0 +1,26 @@
+info:
+  name: walletTransfersCreate
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{url}}/wallet-transfers"
+  body:
+    type: json
+    data: |-
+      {
+        "from_wallet_id": 1,
+        "to_wallet_id": 2,
+        "transfer_date": "2026-10-28",
+        "transfer_amount": "1500",
+        "description": "move cash"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

@@ -104,7 +104,7 @@ func TestUpdateItemCode(t *testing.T) {
 	input := dtos.NewItem{
 		Name:       "latte",
 		Code:       "mocha",
-		Price:      decimal.NewFromInt(4000),
+		Price:      dtos.NaturalDecimal{Decimal: decimal.NewFromInt(4000)},
 		CategoryId: food.Id,
 	}.ToModel(session)
 	updated, err := service.Update(session, existing, &input)

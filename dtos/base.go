@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/linn221/expenses/utils"
+	"github.com/shopspring/decimal"
 )
 
 func addToCollection[Model, Instance any](results []Model, convert func(Model) Instance) []Instance {
@@ -25,4 +26,22 @@ func walletIDFromPath(r *http.Request) (int, error) {
 		return 0, utils.NewBadRequest("resource id not found")
 	}
 	return walletID, nil
+}
+
+// NaturalDecimal is a decimal strictly greater than zero.
+type NaturalDecimal struct {
+	decimal.Decimal
+}
+
+func (n *NaturalDecimal) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		return utils.NewBadRequest("value must be greater than zero")
+	}
+	if err := n.Decimal.UnmarshalJSON(data); err != nil {
+		return utils.NewBadRequest("value is not a valid decimal")
+	}
+	if !n.GreaterThan(decimal.Zero) {
+		return utils.NewBadRequest("value must be greater than zero")
+	}
+	return nil
 }

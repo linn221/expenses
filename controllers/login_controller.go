@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/linn221/expenses/app"
 	"github.com/linn221/expenses/dtos"
 	"github.com/linn221/expenses/services"
 	"github.com/linn221/expenses/utils"
@@ -30,6 +31,26 @@ func (c *loginController) Login() http.HandlerFunc {
 		utils.SetCookies(w, "session_id", sessionId)
 		return json.NewEncoder(w).Encode(dtos.LoginResponse{SessionId: sessionId})
 	})
+}
+
+func (c *loginController) Logout() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userId, err := app.GetUserId(r.Context())
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		session := &app.Session{
+			UserId: userId,
+			Ctx:    r.Context(),
+		}
+		if err := c.Services.LoginService.Logout(r.Context(), session); err != nil {
+			writeError(w, err)
+			return
+		}
+		utils.RemoveCookies(w, "session_id")
+		w.WriteHeader(http.StatusNoContent)
+	}
 }
 
 func (c *loginController) Register() http.HandlerFunc {

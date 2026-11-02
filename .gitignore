@@ -1,3 +1,4 @@
 gen
+gorm.log
 api
 .env

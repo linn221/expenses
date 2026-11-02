@@ -28,7 +28,6 @@ func (i *Wallet) ValidationRules(vc *validate.ValidationContext) {
 		af(
 			validate.ExistsRule("wallets", s.ResId, "wallet not found", userFilter).When(s.ResId > 0),
 			validate.UniqueRule("wallets", "name", i.Name, s.ResId, userFilter),
-			validate.UniqueRule("wallets", "currency", i.Currency, s.ResId, userFilter),
 		)
 	})
 	vc.OnDelete(func(s *app.Session, af validate.AppendFunc) {
